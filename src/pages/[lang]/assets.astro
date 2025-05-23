@@ -1,0 +1,32 @@
+---
+// src/pages/[lang]/assets.astro
+import {LOCALES} from '../../i18n';
+import {ASSETS_DICT} from '../../i18n/assets';
+import {createT} from '../../lib/i18n';
+
+/* 動的ルートを列挙 */
+export function getStaticPaths() {
+    return LOCALES.map(lang => ({params: {lang}}));
+}
+
+/* Astro.params は静的ビルド時に注入される */
+const lang = Astro.params.lang;
+const t = createT(ASSETS_DICT, lang);
+---
+
+<html lang={lang}>
+<head>
+    <meta charset="utf-8"/>
+    <title>{t('heading')}</title>
+</head>
+<body>
+<h2>{t('heading')}</h2>
+
+<!-- ここにアセットカードを並べてもOK -->
+<p>Save Design &mdash; {t('learnMore')}</p>
+
+<nav>
+    <a href={`/${lang}/home`}>{lang === 'ja' ? 'ホームへ' : 'Back Home'}</a>
+</nav>
+</body>
+</html>

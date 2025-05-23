@@ -1,0 +1,47 @@
+﻿name: Deploy Astro site to GitHub Pages
+
+on:
+  # main ブランチへ push されたらデプロイ
+  push:
+    branches: [ main ]
+  # 手動実行も可
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # 以下 3 行が “GitHub Pages” ワークフローで必須
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      # 1️⃣ コード取得
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2️⃣ Node セットアップ
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 3️⃣ 依存インストール & Astro ビルド
+      - name: Install & Build
+        run: |
+          npm ci             # lockfile がある場合
+          npm run build      # dist/ が生成される
+
+      # 4️⃣ dist/ を “Pages artifact” としてアップロード
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      # 5️⃣ GitHub Pages へデプロイ
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
