@@ -5,10 +5,12 @@
     <!-- JS 無効時は英語へ -->
     <meta http-equiv="refresh" content="3; url=/en/home"/>
     <script>
+        const base = '{{Astro.base}}';
         const lang = navigator.language.toLowerCase();
-        if (lang.startsWith('ja')) location.replace('/ja/home');
-        else location.replace('/en/home');
+        if (lang.startsWith('ja')) location.replace(base + 'ja/home');
+        else location.replace(base + 'en/home');
     </script>
+
     <style>
         body {
             display: flex;

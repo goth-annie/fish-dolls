@@ -3,5 +3,6 @@ import {defineConfig} from 'astro/config';
 
 export default defineConfig({
     site: 'https://goth-annie.github.io/fish-dolls/',
-    integrations: [    ],
+    base: '/fish-dolls/',
+    integrations: [],
 });
