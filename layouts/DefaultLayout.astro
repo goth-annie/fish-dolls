@@ -1,0 +1,14 @@
+﻿---
+const {title, lang = 'en'} = Astro.props;
+---
+
+<html lang={lang}>
+<head>
+    <meta charset="utf-8"/>
+    <title>{title}</title>
+    <base href="/fish-dolls/"/>
+</head>
+<body>
+<slot/>
+</body>
+</html>

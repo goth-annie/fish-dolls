@@ -1,5 +1,5 @@
 ---
-// src/pages/[lang]/home.astro
+import DefaultLayout from '../../../layouts/DefaultLayout.astro';
 import {LOCALES} from '../../i18n';
 import {HOME_DICT} from '../../i18n/home';
 import {createT} from '../../lib/i18n';
@@ -14,15 +14,9 @@ const lang = Astro.params.lang;
 const t = createT(HOME_DICT, lang);
 ---
 
-<html lang={lang}>
-<head>
-    <meta charset="utf-8"/>
-    <title>{t('title')}</title>
-</head>
-<body>
-<h1>{t('title')}</h1>
-<p>{t('intro')}</p>
-<!-- 他ページへのリンク -->
-<a href={`${lang}/assets`}>{lang === 'ja' ? 'アセット一覧' : 'Asset List'}</a>
-</body>
-</html>
+<DefaultLayout title="Home" lang={lang}>
+    <h1>{t('title')}</h1>
+    <p>{t('intro')}</p>
+    <!-- 他ページへのリンク -->
+    <a href={`${lang}/assets`}>{lang === 'ja' ? 'アセット一覧' : 'Asset List'}</a>
+</DefaultLayout>
