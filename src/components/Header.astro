@@ -1,0 +1,76 @@
+---
+import HeaderLink from './HeaderLink.astro';
+import {LOCALES, SITE_TITLE} from '@consts';
+
+export function getStaticPaths() {
+    return LOCALES.map(lang => ({params: {lang}}));
+}
+
+const lang = Astro.params.lang;
+---
+
+<header>
+    <nav>
+        <h2><a href="/" class="site-title">{SITE_TITLE}</a></h2>
+        <div class="internal-links">
+            <HeaderLink href={`${import.meta.env.BASE_URL}/${lang}/home`}>Home</HeaderLink>
+            <HeaderLink href={`${import.meta.env.BASE_URL}/${lang}/blog`}>Blog</HeaderLink>
+        </div>
+        <div class="language-switch">
+            <a href={`${import.meta.env.BASE_URL}/en/home`}>English</a>
+            <a href={`${import.meta.env.BASE_URL}/ja/home`}>日本語</a>
+        </div>
+    </nav>
+</header>
+<style>
+    header {
+        margin: 0;
+        padding: 0 1em;
+        background: white;
+        box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 1em;
+    }
+
+    h2 a,
+    h2 a.active {
+        text-decoration: none;
+    }
+
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    nav a:not(.site-title) {
+        padding: 1em 0.5em;
+        color: var(--black);
+        border-bottom: 4px solid transparent;
+        text-decoration: none;
+    }
+
+    nav a.active {
+        text-decoration: none;
+        border-bottom-color: var(--accent);
+    }
+
+    .site-title {
+        padding: 0.25em 0;
+        color: var(--black);
+        font-size: 2em;
+        font-family: 'Cherry Bomb', 'atkinson', serif;
+    }
+
+    .language-switch a {
+        color: var(--black);
+        text-decoration: none;
+    }
+
+    .language-switch a:hover {
+        text-decoration: underline;
+    }
+</style>

@@ -1,0 +1,28 @@
+---
+import {getCollection, render} from 'astro:content';
+import BlogPost from '@layouts/BlogPost.astro';
+
+/* ---------- ① ルート生成 ---------- */
+export async function getStaticPaths() {
+    const posts = await getCollection('blog');
+    return posts.map((p) => {
+        const [lang, slug] = p.id.split('/');      // 例: ['ja','save-design']
+        return {
+            params: {lang, slug},                  // すべて文字列
+            props: p,                                // 記事データを渡す
+        };
+    });
+}
+
+/* ---------- ② 記事取得 ---------- */
+import type {CollectionEntry} from 'astro:content';
+const entry = Astro.props as CollectionEntry<'blog'>;
+
+/* ---------- ③ HTML 化 ---------- */
+const {Content} = await render(entry);
+---
+
+<!-- ---------- ④ 表示 ---------- -->
+<BlogPost {...entry.data}>
+    <Content/>
+</BlogPost>

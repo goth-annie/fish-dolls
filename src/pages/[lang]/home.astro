@@ -1,22 +1,60 @@
----
-import DefaultLayout from '../../../layouts/DefaultLayout.astro';
-import {LOCALES} from '../../i18n';
-import {HOME_DICT} from '../../i18n/home';
-import {createT} from '../../lib/i18n';
+﻿---
+import BaseHead from '@components/BaseHead.astro';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import {SITE_TITLE, SITE_DESCRIPTION, LOCALES} from '@consts';
+import {getCollection} from "astro:content";
+import AssetCard from "@components/AssetCard.astro";
+import EnIntro from '@content/en/home-intro.mdx';
+import JaIntro from '@content/ja/home-intro.mdx';
 
-/* 動的ルートを列挙 */
 export function getStaticPaths() {
     return LOCALES.map(lang => ({params: {lang}}));
 }
 
-/* Astro.params は静的ビルド時に注入される */
 const lang = Astro.params.lang;
-const t = createT(HOME_DICT, lang);
+const Intro = lang === 'ja' ? JaIntro : EnIntro;
+const posts = (await getCollection('blog', entry => entry.data.lang === lang)).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 ---
 
-<DefaultLayout title="Home" lang={lang}>
-    <h1>{t('title')}</h1>
-    <p>{t('intro')}</p>
-    <!-- 他ページへのリンク -->
-    <a href={`${lang}/assets`}>{lang === 'ja' ? 'アセット一覧' : 'Asset List'}</a>
-</DefaultLayout>
+<!doctype html>
+<html lang={lang}>
+<head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION}/>
+</head>
+<body>
+<Header/>
+<main>
+    <Intro/>
+    <section class="card-grid">
+        {posts.map(({id, data}) => {
+            const [lang, slug] = id.split('/');   // id = "ja/save-design"
+
+            return (
+                    <AssetCard
+                            href={`${import.meta.env.BASE_URL}/${lang}/blog/${slug}`}
+                            title={data.title}
+                            description={data.description}
+                            image={data.heroImage}
+                    />
+            )
+        })}
+    </section>
+</main>
+<Footer/>
+</body>
+</html>
+
+<style>
+    .card-grid {
+        display: grid;
+        gap: 1.5em;
+        padding: 2em;
+        max-width: 1200px;
+        margin: 0 auto;
+        justify-items: center;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+</style>
