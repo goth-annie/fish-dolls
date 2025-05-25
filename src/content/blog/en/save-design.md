@@ -1,5 +1,4 @@
 ﻿---
-lang: 'en'
 title: 'Save Design'
 description: 'Keyless save system'
 pubDate: '2025-05-25'

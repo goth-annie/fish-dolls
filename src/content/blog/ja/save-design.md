@@ -1,5 +1,4 @@
 ﻿---
-lang: 'ja'
 title: 'Save Design'
 description: 'キーを使わないセーブシステム'
 pubDate: '2025-05-25'
