@@ -1,0 +1,68 @@
+﻿# Save Design スクリプトリファレンス
+
+1. [概要](#1-概要)  
+   1.1 [このドキュメントで扱う内容](#11-このドキュメントで扱う内容)
+
+2. 設定インターフェース  
+   2.1 ISaveDesignConfig
+    - 保存ディレクトリパス
+    - ファイル名
+    - 拡張子
+
+3. データ定義属性  
+   3.1 [SharedData]  
+   3.2 [SlotData]  
+   3.3 [TempData]  
+   3.3.1 TempDataResetTiming（列挙体）  
+   3.4 [SlotMetaData]  
+   3.5 属性の階層指定と依存関係の記述方法
+
+4. 自動生成による API の仕組み  
+   4.1 SaveDesignRoot 属性の役割  
+   4.2 クラス名と名前空間の扱い（利用者依存）  
+   4.3 生成される静的 API の一覧
+    - Initialize()
+    - Load()
+    - Save()
+    - Delete()
+    - CurrentSlotIndex
+
+5. コールバックインターフェース  
+   5.1 IAfterLoadCallback  
+   5.2 IBeforeSaveCallback  
+   5.3 IAfterInitializeCallback
+
+6. 非同期処理の補足  
+   6.1 Async 名前空間とメソッド拡張
+
+7. スロット識別子と保存戦略  
+   7.1 数値インデックス vs 文字列 ID  
+   7.2 SlotMetaData の取得
+
+8. 暗号化と復号化（オプション）  
+   8.1 Encryptor クラスの partial 実装  
+   8.2 Tools メニューによる AES 設定生成  
+   8.3 HMAC による改ざん検知
+
+9. エラー処理と例外フック  
+   9.1 OnGameDataError の利用
+
+10. 補足情報  
+    10.1 自動生成と IL2CPP の互換性  
+    10.2 サポート対象のシリアライザー（Json / MessagePack）
+
+付録 A. 型一覧（逆引き）  
+付録 B. 属性・インターフェース一覧（逆引き）
+
+---
+
+## 1. 概要
+
+### 1.1 このドキュメントで扱う内容
+
+このドキュメントでは、Unity 向けセーブデータ管理アセット「**Save Design**」のスクリプトを使用するためのAPI情報を提供しています。
+
+Save Design はコード生成を用いたアセットのため、利用するには **C# と Unity のスクリプトに関する基本的な理解が必要**とされます。
+
+---
+
