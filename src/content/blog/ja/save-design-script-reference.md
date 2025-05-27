@@ -19,6 +19,7 @@
 4. [クラス](#4-クラス)  
    4.1 [SaveDesignRoot 属性を付与されたクラス](#41-savedesignroot-属性を付与されたクラス)  
    4.2 [Encryptor](#42-encryptor)
+5. [サードパーティ ライセンス](#5-サードパーティ-ライセンス)
 
 ---
 
@@ -380,7 +381,7 @@ public class B : IAfterLoadCallback
 
     void IAfterLoadCallback.OnAfterLoad()
     {
-        // 読み込み後の処理でデータAの値に
+        // 読み込み後の処理でデータAに依存している
         if (SD.Shared.A.flag) value += 50;
     }
 }
@@ -489,7 +490,7 @@ public class B : IAfterLoadCallback
 
     void IAfterLoadCallback.OnAfterLoad()
     {
-        // 読み込み後の処理でデータAの値に
+        // 読み込み後の処理でデータAに依存している
         if (SD.Slot.A.flag) value += 50;
     }
 }
@@ -838,9 +839,10 @@ if (SD.Load.Slot("identifier"))
 | [Initialize](#initialize) | データを初期化する。                             |
 | [Load](#Load)             | データを読み込む。                              |
 | [Save](#Save)             | データを保存する。                              |
-| Delete                    | データを削除する。                              |
-| Shared                    | 共有データにアクセスするためのエントリポイント。               |
-| Slot                      | セーブスロットごと分けて保存するデータにアクセスするためのエントリポイント。 |
+| [Delete](#Delete)         | データを削除する。                              |
+| [Shared](#Shared)         | 共有データにアクセスするためのエントリポイント。               |
+| [Slot](#Slot)             | セーブスロットごと分けて保存するデータにアクセスするためのエントリポイント。 |
+| [Temp](#Temp)             | 保存されない一時データにアクセスするためのエントリポイント。         |
 
 条件を満たした場合、 `Initialize` , `Load` , `Save` , `Delete` の4つのエントリポイントには `UniTask` か `Awaitable` がベースの
 **非同期関数**が生成されます。
@@ -1022,6 +1024,8 @@ public void DisplaySaveSlots()
 
 データの保存関数へのエントリポイントです。
 
+メタ情報は `Slot` の保存時に自動的に保存されます。
+
 ---
 
 ##### Static 関数
@@ -1032,21 +1036,19 @@ public void DisplaySaveSlots()
 
 共有データを保存する。
 
-共有データの場合はゲーム起動時に一度だけ読み込みを実行して、失敗した場合に初期化する処理を実装することを推奨します。
+ゲーム設定を変更した後や、ゲーム終了時に呼び出すことを推奨します。
 
 ```csharp
-SD.Load.Shared();             // 同期
-await SD.Load.Async.Shared(); // 非同期
+SD.Save.Shared();             // 同期
+await SD.Save.Async.Shared(); // 非同期
 
 
-[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-static void InitSaveDesignConfig()
+public void SaveSetting()
 {
-    // 保存関連の設定
-    SD.config = Resources.Load<SaveDesignConfig>("SaveDesignConfig");
-
-    // 共有データの読み込みに失敗したら初期化する
-    if (!SD.Load.Shared()) SD.Initialize.Shared();
+    if (SD.Save.Shared())
+    {
+        ...
+    }
 }
 ```
 
@@ -1057,61 +1059,162 @@ static void InitSaveDesignConfig()
 
 ###### 説明
 
-セーブスロットごとに分けて保存するデータを**スロット番号**、もしくは**識別子**を指定して読み込む。
+セーブスロットごとに分けて保存するデータを**スロット番号**、もしくは**識別子**を指定して保存する。
 
-セーブスロットに保存したデータを引き継いでゲームを開始する場合に実行します。
-
-また、スロット番号による読み込み関数は**セーブスロットのデータを読み込むとき**に使用し、識別子による読み込み関数はオートセーブやチェックポイントなど
-**セーブスロットとは関係のないデータを読み込むとき**に使用することを推奨します。
+スロット番号による保存は**セーブスロットのデータを保存するとき**に使用し、識別子による保存はオートセーブやチェックポイントなど
+**セーブスロットとは関係のないデータを保存するとき**に使用することを推奨します。
 
 ```csharp
-SD.Load.Slot(0);             // 同期
-await SD.Load.Async.Slot("auto"); // 非同期
+SD.Save.Slot(0);             // 同期
+await SD.Save.Async.Slot("auto"); // 非同期
 
 
-public void LoadGame(int slotIndex)
+public void SaveGame(int slotIndex)
 {
-    if (SD.Load.Slot(slotIndex))
+    if (SD.Save.Slot(slotIndex))
     {
-        // データが読み込めたら次のシーンへ遷移する
-        SceneManager.LoadScene("Next Scene");
+        ...
     }
 }
 ```
 
 ---
 
-* public static bool **SlotMeta** (int **slotIndex**, out ? **meta**);
-* public static bool **SlotMeta** (string **identifier**, out ? **meta**);
+#### Delete
+
+##### 説明
+
+データの削除関数へのエントリポイントです。
+
+メタ情報は `Slot` の削除時に自動的に削除されます。
+
+---
+
+##### Static 関数
+
+* public static bool **Shared** ();
 
 ###### 説明
 
-各セーブスロットに付随するメタ情報を**スロット番号**、もしくは**識別子**を指定して読み込む。
-
-セーブデータのロード画面で各セーブスロットの情報を表示するときに実行します。
-
-スロット番号と識別子の使い分け方は、セーブスロットごとに分けて保存するデータのときと同じです。
-
-また、非同期関数は生成されません。
+共有データを削除する。
 
 ```csharp
-// セーブスロットのUIリスト
-[SerializeField] SaveSlotUI[] slots;
+SD.Delete.Shared();             // 同期
+await SD.Delete.Async.Shared(); // 非同期
+```
 
-public void DisplaySaveSlots()
+---
+
+* public static bool **Slot** (int **slotIndex**);
+* public static bool **Slot** (string **identifier**);
+
+###### 説明
+
+セーブスロットごとに分けて保存するデータを**スロット番号**、もしくは**識別子**を指定して削除する。
+
+```csharp
+SD.Delete.Slot(0);             // 同期
+await SD.Delete.Async.Slot("auto"); // 非同期
+```
+
+---
+
+#### Shared
+
+##### 説明
+
+共有データへのエントリポイントです。
+
+`static partial` クラスで生成されるため、自由に拡張できます。
+
+```csharp
+using System;
+using SaveDesign.Runtime;
+
+[SharedData, Serializable]
+public class ExampleClass
 {
-    for(int i = 0; i < slots.Length; i++)
+    public int value;
+}
+
+// 下記のようにアクセスできる
+SD.Shared.ExampleClass.value = 10;
+```
+
+---
+
+#### Slot
+
+##### 説明
+
+セーブスロットごとに分けて保存するデータへのエントリポイントです。
+
+`static partial` クラスで生成されるため、自由に拡張できます。
+
+```csharp
+using System;
+using SaveDesign.Runtime;
+
+[SlotData, Serializable]
+public class ExampleClass
+{
+    public int value;
+}
+
+// 下記のようにアクセスできる
+SD.Slot.ExampleClass.value = 10;
+```
+
+---
+
+#### Temp
+
+##### 説明
+
+保存されない一時データへのエントリポイントです。
+
+`static partial` クラスで生成されるため、自由に拡張できます。
+
+```csharp
+using SaveDesign.Runtime;
+
+[TempData]
+public class ExampleClass
+{
+    public int value;
+}
+
+// 下記のようにアクセスできる
+SD.Temp.ExampleClass.value = 10;
+```
+
+---
+
+#### Private partial 関数
+
+| 関数名                                 | 説明                       |
+|-------------------------------------|--------------------------|
+| [OnGameDataError](#OnGameDataError) | 初期化や読み書き処理中に発生した例外を受け取る。 |
+
+---
+
+##### OnGameDataError
+
+###### 説明
+
+初期化や読み書き処理中に発生した例外を受け取る。
+
+```csharp
+using System;
+using SaveDesign.Runtime;
+using UnityEngine;
+
+[SaveDesignRoot]
+internal partial class SD
+{
+    static partial void OnGameDataError(Exception e)
     {
-        if (SD.Load.SlotMeta(i, out var meta))
-        {
-            // メタ情報があれば保存されたデータがあるということ
-            slots[i].UpdateUI(i, meta);
-        }
-        else
-        {
-            // メタ情報がなければ、そのセーブスロットは空である
-            slots[i].UpdateUI(i, "no data");
-        }
+        Debug.LogException(e);
     }
 }
 ```
@@ -1119,3 +1222,78 @@ public void DisplaySaveSlots()
 ---
 
 ### 4.2 Encryptor
+
+internal static partial class **Encryptor**
+
+#### 説明
+
+暗号化処理を組み込みたい場合は、このクラスの部分メソッドを実装してください。
+
+#### Private static partial 関数
+
+| 関数名                 | 説明         |
+|---------------------|------------|
+| [Encrypt](#Encrypt) | データを暗号化する。 |
+| [Decrypt](#Decrypt) | データを複合化する。 |
+
+---
+
+##### Encrypt
+
+* static partial void **Encrypt** (ref byte[] **data**);
+
+###### 説明
+
+データの暗号化を組み込むための部分関数。
+
+引数の `data` に対して暗号化後の `byte[]` を代入することで返す。
+
+```csharp
+namespace SaveDesign.Runtime
+{
+    internal static partial class Encryptor
+    {
+        static partial void Encrypt(ref byte[] data)
+        {
+            ...
+        }
+    }
+}
+```
+
+---
+
+##### Decrypt
+
+* static partial void **Decrypt** (ref byte[] **data**);
+
+###### 説明
+
+データの複合化を組み込むための部分関数。
+
+引数の `data` に対して暗号化後の `byte[]` を代入することで返す。
+
+```csharp
+namespace SaveDesign.Runtime
+{
+    internal static partial class Encryptor
+    {
+        static partial void Decrypt(ref byte[] data)
+        {
+            ...
+        }
+    }
+}
+```
+
+---
+
+## 5. サードパーティ ライセンス
+
+本パッケージは、以下のライブラリを参照するコードを生成する可能性があります：
+
+- [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) — MIT License
+- [UniTask](https://github.com/Cysharp/UniTask) — MIT License
+
+これらのライブラリは**パッケージに含まれていません**。
+ライセンスの詳細については、 `Third-Party Notices.txt` を参照してください。
