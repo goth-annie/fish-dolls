@@ -1,4 +1,13 @@
-﻿# Save Design Script Reference
+﻿---
+stylesheet: https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css
+body_class: markdown-body
+css: |-
+   .page-break { page-break-after: always; }
+   .markdown-body { font-size: 11px; }
+   .markdown-body pre > code { white-space: pre-wrap; }
+---
+
+# Save Design Script Reference
 
 ## Table of Contents
 
@@ -16,12 +25,14 @@
 3. [Enumerations](#3-enumerations)  
    3.1 [SerializerType](#31-serializertype)  
    3.2 [TempDataResetTiming](#32-tempdataresettiming)
-4. [Classes](#4-Classes)  
+4. [Classes](#4-classes)  
    4.1 [Class with SaveDesignRoot attribute](#41-class-with-savedesignroot-attribute)  
    4.2 [Encryptor](#42-encryptor)
 5. [Third-Party Licenses](#5-third-party-licenses)
 
 ---
+
+<div class="page-break"></div>
 
 ## 1. Interfaces
 
@@ -39,9 +50,9 @@ It is ignored if implemented in a class with only the `TempData` attribute or no
 
 #### Public Methods
 
-| Method       | Description                             |
-|--------------|-----------------------------------------|
-| OnBeforeSave | It is called just before data is saved. |
+| Method                        | Description                             |
+|-------------------------------|-----------------------------------------|
+| [OnBeforeSave](#onbeforesave) | It is called just before data is saved. |
 
 ---
 
@@ -100,9 +111,9 @@ of the data attributes.
 
 #### Public Methods
 
-| Method            | Description                    |
-|-------------------|--------------------------------|
-| OnAfterInitialize | Called at data initialization. |
+| Method                                  | Description                    |
+|-----------------------------------------|--------------------------------|
+| [OnAfterInitialize](#onafterinitialize) | Called at data initialization. |
 
 ---
 
@@ -145,9 +156,9 @@ It is ignored if implemented in a class with only the `TempData` attribute or no
 
 #### Public Methods
 
-| Method      | Description                                  |
-|-------------|----------------------------------------------|
-| OnAfterLoad | It is called immediately after data is read. |
+| Method                      | Description                                  |
+|-----------------------------|----------------------------------------------|
+| [OnAfterLoad](#onafterload) | It is called immediately after data is read. |
 
 ---
 
@@ -189,10 +200,10 @@ An interface that provides settings for data storage.
 
 | Method                                                | Description                                                              |
 |-------------------------------------------------------|--------------------------------------------------------------------------|
-| [GetSaveDataDirectoryPath](#GetSaveDataDirectoryPath) | Obtain the directory path where the file is to be saved.                 |
-| [GetSharedDataFileName](#GetSharedDataFileName)       | Obtain the name of the file in which the shared data is to be stored.    |
-| [GetSlotDataFileName](#GetSlotDataFileName)           | Get the file name of the data to be saved separately for each save slot. |
-| [GetFileExtension](#GetFileExtension)                 | Gets the file extension of the file to be saved.                         |
+| [GetSaveDataDirectoryPath](#getsavedatadirectorypath) | Obtain the directory path where the file is to be saved.                 |
+| [GetSharedDataFileName](#getshareddatafilename)       | Obtain the name of the file in which the shared data is to be stored.    |
+| [GetSlotDataFileName](#getslotdatafilename)           | Get the file name of the data to be saved separately for each save slot. |
+| [GetFileExtension](#getfileextension)                 | Gets the file extension of the file to be saved.                         |
 
 ---
 
@@ -244,6 +255,8 @@ Returning `null` or an empty string will generate a file with no extension.
 
 ---
 
+<div class="page-break"></div>
+
 ## 2. Attributes
 
 ### 2.1 SaveDesignRootAttribute
@@ -265,7 +278,7 @@ See [Class with SaveDesignRoot attribute](#41-class-with-savedesignroot-attribut
 
 | Parameters                        | Description                                                                  |
 |-----------------------------------|------------------------------------------------------------------------------|
-| [serializerType](#serializerType) | Type of serializer to be used. (default value: `SerializerType.JsonUtility`) |
+| [serializerType](#serializertype) | Type of serializer to be used. (default value: `SerializerType.JsonUtility`) |
 
 ```csharp
 using System;
@@ -312,7 +325,7 @@ It is suitable for player-wide progress and global settings.
 | Parameters                        | Description                                                      |
 |-----------------------------------|------------------------------------------------------------------|
 | [path](#path)                     | Hierarchical path to access data.                                |
-| [dependsOnTypes](#dependsOnTypes) | List of data on which to rely for initialization and read/write. |
+| [dependsOnTypes](#dependsontypes) | List of data on which to rely for initialization and read/write. |
 
 ```csharp
 using System;
@@ -422,7 +435,7 @@ chapters, etc.
 | Parameters                          | Description                                                      |
 |-------------------------------------|------------------------------------------------------------------|
 | [path](#path-1)                     | Hierarchical path to access data.                                |
-| [dependsOnTypes](#dependsOnTypes-1) | List of data on which to rely for initialization and read/write. |
+| [dependsOnTypes](#dependsontypes-1) | List of data on which to rely for initialization and read/write. |
 
 ```csharp
 using System;
@@ -591,8 +604,8 @@ When it is reset can be controlled by [TempDataResetTiming](#32-tempdataresettim
 | Parameters                          | Description                                                                           |
 |-------------------------------------|---------------------------------------------------------------------------------------|
 | [path](#path-2)                     | Hierarchical path to access data.                                                     |
-| [resetTiming](#resetTiming)         | When to reset temporary data. (default value: `TempDataResetTiming.OnSharedDataLoad`) |
-| [dependsOnTypes](#dependsOnTypes-2) | List of data on which to rely for initialization and read/write.                      |
+| [resetTiming](#resettiming)         | When to reset temporary data. (default value: `TempDataResetTiming.OnSharedDataLoad`) |
+| [dependsOnTypes](#dependsontypes-2) | List of data on which to rely for initialization and read/write.                      |
 
 ```csharp
 using System;
@@ -717,6 +730,8 @@ public class D { }
 
 ---
 
+<div class="page-break"></div>
+
 ## 3. Enumerations
 
 ### 3.1 SerializerType
@@ -772,10 +787,10 @@ Type of timing for resetting temporary data.
 
 #### Static properties
 
-| Properties       | Description                                            |
-|------------------|--------------------------------------------------------|
-| config           | Data Storage Settings.                                 |
-| currentSlotIndex | The save slot number currently being read. (Read only) |
+| Properties                            | Description                                            |
+|---------------------------------------|--------------------------------------------------------|
+| [config](#config)                     | Data Storage Settings.                                 |
+| [currentSlotIndex](#currentslotindex) | The save slot number currently being read. (Read only) |
 
 ---
 
@@ -848,12 +863,12 @@ The generated entry points are as follows.
 | Entry point               | Description                                                            |
 |---------------------------|------------------------------------------------------------------------|
 | [Initialize](#initialize) | Initialize data.                                                       |
-| [Load](#Load)             | Load data.                                                             |
-| [Save](#Save)             | Save data.                                                             |
-| [Delete](#Delete)         | Delete data.                                                           |
-| [Shared](#Shared)         | Entry point for accessing shared data.                                 |
-| [Slot](#Slot)             | Entry points for accessing data to be stored separately per save slot. |
-| [Temp](#Temp)             | Entry point for accessing temporary data that will not be stored.      |
+| [Load](#load)             | Load data.                                                             |
+| [Save](#save)             | Save data.                                                             |
+| [Delete](#delete)         | Delete data.                                                           |
+| [Shared](#shared)         | Entry point for accessing shared data.                                 |
+| [Slot](#slot)             | Entry points for accessing data to be stored separately per save slot. |
+| [Temp](#temp)             | Entry point for accessing temporary data that will not be stored.      |
 
 If the conditions are met, the four entry points `Initialize` , `Load` , `Save` , and `Delete` will have `UniTask` or
 `Awaitable` based
@@ -861,7 +876,7 @@ If the conditions are met, the four entry points `Initialize` , `Load` , `Save` 
 
 In the case of `UniTask`, by introducing `UniTask` into the project and defining the scripting symbol
 `GAME_DATA_MANAGER_SUPPORT_UNITASK`
-UniTask-based asynchronous functions are generated by defining the scripting symbol `GAME_DATA_MANAGER_SUPPORT_UNITASK`.
+UniTask-based asynchronous functions are generated by defining the scripting symbol `SAVE_DESIGN_SUPPORT_UNITASK`.
 
 In the case of `Awaitable`, projects with version `Unity 2023.1` or later will automatically generate Awaitable
 based asynchronous functions.  
@@ -1213,7 +1228,7 @@ SD.Temp.ExampleClass.value = 10;
 
 | Method                              | Description                                                                   |
 |-------------------------------------|-------------------------------------------------------------------------------|
-| [OnGameDataError](#OnGameDataError) | Receives exceptions that occur during initialization or read/write processes. |
+| [OnGameDataError](#ongamedataerror) | Receives exceptions that occur during initialization or read/write processes. |
 
 ---
 
@@ -1252,8 +1267,8 @@ If you wish to incorporate encryption processing, implement a partial method of 
 
 | Method              | Description   |
 |---------------------|---------------|
-| [Encrypt](#Encrypt) | Encrypt data. |
-| [Decrypt](#Decrypt) | Decrypt data. |
+| [Encrypt](#encrypt) | Encrypt data. |
+| [Decrypt](#decrypt) | Decrypt data. |
 
 ---
 
@@ -1306,6 +1321,8 @@ namespace SaveDesign.Runtime
 ```
 
 ---
+
+<div class="page-break"></div>
 
 ## 5. Third-Party Licenses
 

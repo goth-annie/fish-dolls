@@ -1,4 +1,13 @@
-﻿# Save Design スクリプトリファレンス
+﻿---
+stylesheet: https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css
+body_class: markdown-body
+css: |-
+   .page-break { page-break-after: always; }
+   .markdown-body { font-size: 11px; }
+   .markdown-body pre > code { white-space: pre-wrap; }
+---
+
+# Save Design スクリプトリファレンス
 
 ## 目次
 
@@ -23,6 +32,8 @@
 
 ---
 
+<div class="page-break"></div>
+
 ## 1. インターフェース
 
 ### 1.1 IBeforeSaveCallback
@@ -38,9 +49,9 @@
 
 #### Public 関数
 
-| 関数名          | 説明                   |
-|--------------|----------------------|
-| OnBeforeSave | データが保存される直前に呼び出されます。 |
+| 関数名                           | 説明                   |
+|-------------------------------|----------------------|
+| [OnBeforeSave](#onbeforesave) | データが保存される直前に呼び出されます。 |
 
 ---
 
@@ -98,9 +109,9 @@ public class ExampleClass : IBeforeSaveCallback
 
 #### Public 関数
 
-| 関数名               | 説明               |
-|-------------------|------------------|
-| OnAfterInitialize | データ初期化時に呼び出されます。 |
+| 関数名                                     | 説明               |
+|-----------------------------------------|------------------|
+| [OnAfterInitialize](#onafterinitialize) | データ初期化時に呼び出されます。 |
 
 ---
 
@@ -143,9 +154,9 @@ public class ExampleClass : IAfterInitializeCallback
 
 #### Public 関数
 
-| 関数名         | 説明                    |
-|-------------|-----------------------|
-| OnAfterLoad | データが読み込まれた直後に呼び出されます。 |
+| 関数名                         | 説明                    |
+|-----------------------------|-----------------------|
+| [OnAfterLoad](#onafterload) | データが読み込まれた直後に呼び出されます。 |
 
 ---
 
@@ -185,12 +196,12 @@ public class ExampleClass : IAfterLoadCallback
 
 #### Public 関数
 
-| 関数名                        | 説明                               |
-|----------------------------|----------------------------------|
-| `GetSaveDataDirectoryPath` | ファイルを保存するディレクトリパスを取得する。          |
-| `GetSharedDataFileName`    | 共有データを保存するファイル名を取得する。            |
-| `GetSlotDataFileName`      | セーブスロットごとに分けて保存するデータのファイル名を取得する。 |
-| `GetFileExtension`         | 保存するファイルの拡張子を取得する。               |
+| 関数名                                                   | 説明                               |
+|-------------------------------------------------------|----------------------------------|
+| [GetSaveDataDirectoryPath](#getsavedatadirectorypath) | ファイルを保存するディレクトリパスを取得する。          |
+| [GetSharedDataFileName](#getshareddatafilename)       | 共有データを保存するファイル名を取得する。            |
+| [GetSlotDataFileName](#getslotdatafilename)           | セーブスロットごとに分けて保存するデータのファイル名を取得する。 |
+| [GetFileExtension](#getfileextension)                 | 保存するファイルの拡張子を取得する。               |
 
 ---
 
@@ -240,6 +251,8 @@ Android など一部のプラットフォームは、 `Application.persistentDat
 
 ---
 
+<div class="page-break"></div>
+
 ## 2. 属性
 
 ### 2.1 SaveDesignRootAttribute
@@ -260,7 +273,7 @@ Android など一部のプラットフォームは、 `Application.persistentDat
 
 | パラメーター名                           | 説明                                                     |
 |-----------------------------------|--------------------------------------------------------|
-| [serializerType](#serializerType) | 使用するシリアライザーの種類。 (デフォルト値: `SerializerType.JsonUtility`) |
+| [serializerType](#serializertype) | 使用するシリアライザーの種類。 (デフォルト値: `SerializerType.JsonUtility`) |
 
 ```csharp
 using System;
@@ -307,7 +320,7 @@ ExampleClass.Load
 | パラメーター名                           | 説明                 |
 |-----------------------------------|--------------------|
 | [path](#path)                     | データにアクセスするための階層パス。 |
-| [dependsOnTypes](#dependsOnTypes) | 読み書き時に依存するデータのリスト。 |
+| [dependsOnTypes](#dependsontypes) | 読み書き時に依存するデータのリスト。 |
 
 ```csharp
 using System;
@@ -416,7 +429,7 @@ public class C { }
 | パラメーター名                             | 説明                 |
 |-------------------------------------|--------------------|
 | [path](#path-1)                     | データにアクセスするための階層パス。 |
-| [dependsOnTypes](#dependsOnTypes-1) | 読み書き時に依存するデータのリスト。 |
+| [dependsOnTypes](#dependsontypes-1) | 読み書き時に依存するデータのリスト。 |
 
 ```csharp
 using System;
@@ -582,8 +595,8 @@ if (SD.Load.SlotMeta(slotIndex, out var meta))
 | パラメーター名                             | 説明                                                                  |
 |-------------------------------------|---------------------------------------------------------------------|
 | [path](#path-2)                     | データにアクセスするための階層パス。                                                  |
-| [resetTiming](#resetTiming)         | 一時データをリセットするタイミング。 (デフォルト値: `TempDataResetTiming.OnSharedDataLoad`) |
-| [dependsOnTypes](#dependsOnTypes-2) | 読み書き時に依存するデータのリスト。                                                  |
+| [resetTiming](#resettiming)         | 一時データをリセットするタイミング。 (デフォルト値: `TempDataResetTiming.OnSharedDataLoad`) |
+| [dependsOnTypes](#dependsontypes-2) | 読み書き時に依存するデータのリスト。                                                  |
 
 ```csharp
 using System;
@@ -707,6 +720,8 @@ public class D { }
 
 ---
 
+<div class="page-break"></div>
+
 ## 3. 列挙型
 
 ### 3.1 SerializerType
@@ -728,10 +743,10 @@ internal parital class SD { }
 
 #### 変数
 
-| 変数名         | 説明                                |
-|-------------|-----------------------------------|
-| JsonUtility | Unity 標準の JSON ライブラリ。             |
-| MessagePack | MessagePack for C# \[MIT License] |
+| 変数名           | 説明                                |
+|---------------|-----------------------------------|
+| `JsonUtility` | Unity 標準の JSON ライブラリ。             |
+| `MessagePack` | MessagePack for C# \[MIT License] |
 
 ---
 
@@ -745,12 +760,12 @@ internal parital class SD { }
 
 #### 変数
 
-| 変数名              | 説明                           |
-|------------------|------------------------------|
-| OnGameStart      | ゲーム起動時に一度だけリセットする。           |
-| OnSharedDataLoad | 共有データの初期化時または読み込み時にリセットする。   |
-| OnSlotDataLoad   | セーブスロットの初期化時または読み込み時にリセットする。 |
-| Manual           | 手動でリセットする。                   |
+| 変数名                | 説明                           |
+|--------------------|------------------------------|
+| `OnGameStart`      | ゲーム起動時に一度だけリセットする。           |
+| `OnSharedDataLoad` | 共有データの初期化時または読み込み時にリセットする。   |
+| `OnSlotDataLoad`   | セーブスロットの初期化時または読み込み時にリセットする。 |
+| `Manual`           | 手動でリセットする。                   |
 
 ---
 
@@ -762,10 +777,10 @@ internal parital class SD { }
 
 #### Static 変数
 
-| 変数名              | 説明                           |
-|------------------|------------------------------|
-| config           | データの保存に関する設定                 |
-| currentSlotIndex | 現在読み込んでいるセーブスロット番号。 (読み取り専用) |
+| 変数名                                   | 説明                           |
+|---------------------------------------|------------------------------|
+| [config](#config)                     | データの保存に関する設定                 |
+| [currentSlotIndex](#currentslotindex) | 現在読み込んでいるセーブスロット番号。 (読み取り専用) |
 
 ---
 
@@ -837,17 +852,17 @@ if (SD.Load.Slot("identifier"))
 | 名前                        | 説明                                     |
 |---------------------------|----------------------------------------|
 | [Initialize](#initialize) | データを初期化する。                             |
-| [Load](#Load)             | データを読み込む。                              |
-| [Save](#Save)             | データを保存する。                              |
-| [Delete](#Delete)         | データを削除する。                              |
-| [Shared](#Shared)         | 共有データにアクセスするためのエントリポイント。               |
-| [Slot](#Slot)             | セーブスロットごと分けて保存するデータにアクセスするためのエントリポイント。 |
-| [Temp](#Temp)             | 保存されない一時データにアクセスするためのエントリポイント。         |
+| [Load](#load)             | データを読み込む。                              |
+| [Save](#save)             | データを保存する。                              |
+| [Delete](#delete)         | データを削除する。                              |
+| [Shared](#shared)         | 共有データにアクセスするためのエントリポイント。               |
+| [Slot](#slot)             | セーブスロットごと分けて保存するデータにアクセスするためのエントリポイント。 |
+| [Temp](#temp)             | 保存されない一時データにアクセスするためのエントリポイント。         |
 
 条件を満たした場合、 `Initialize` , `Load` , `Save` , `Delete` の4つのエントリポイントには `UniTask` か `Awaitable` がベースの
 **非同期関数**が生成されます。
 
-`UniTask` の場合、プロジェクトに`UniTask`を導入し、スクリプティングシンボル `GAME_DATA_MANAGER_SUPPORT_UNITASK`
+`UniTask` の場合、プロジェクトに`UniTask`を導入し、スクリプティングシンボル `SAVE_DESIGN_SUPPORT_UNITASK`
 を定義することで、UniTask ベースの非同期関数が生成されます。
 
 `Awaitable` の場合、バージョンが `Unity 2023.1` 以降のプロジェクトであれば自動的に Awaitable
@@ -1194,7 +1209,7 @@ SD.Temp.ExampleClass.value = 10;
 
 | 関数名                                 | 説明                       |
 |-------------------------------------|--------------------------|
-| [OnGameDataError](#OnGameDataError) | 初期化や読み書き処理中に発生した例外を受け取る。 |
+| [OnGameDataError](#ongamedataerror) | 初期化や読み書き処理中に発生した例外を受け取る。 |
 
 ---
 
@@ -1233,8 +1248,8 @@ internal static partial class **Encryptor**
 
 | 関数名                 | 説明         |
 |---------------------|------------|
-| [Encrypt](#Encrypt) | データを暗号化する。 |
-| [Decrypt](#Decrypt) | データを複合化する。 |
+| [Encrypt](#encrypt) | データを暗号化する。 |
+| [Decrypt](#decrypt) | データを複合化する。 |
 
 ---
 
@@ -1287,6 +1302,8 @@ namespace SaveDesign.Runtime
 ```
 
 ---
+
+<div class="page-break"></div>
 
 ## 5. サードパーティ ライセンス
 

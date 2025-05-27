@@ -2,7 +2,7 @@
 title: 'Save Design'
 description: 'キーを使わないセーブシステム'
 pubDate: '2025-05-25'
-heroImage: '/fish-dolls/images/save-design-icon.png'
+heroImage: '/fish-dolls/images/save-design.png'
 ---
 
 # 概要
