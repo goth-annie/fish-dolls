@@ -1,10 +1,8 @@
 ﻿---
-stylesheet: https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css
-body_class: markdown-body
-css: |-
-   .page-break { page-break-after: always; }
-   .markdown-body { font-size: 11px; }
-   .markdown-body pre > code { white-space: pre-wrap; }
+title: Save Design スクリプトリファレンス
+description: Save Design に含まれる属性・インターフェース・自動生成されるメソッドの詳細な API ドキュメントです。
+pubDate: '2025-05-25'
+heroImage: '/fish-dolls/images/save-design.png'
 ---
 
 # Save Design スクリプトリファレンス
