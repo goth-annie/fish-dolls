@@ -597,19 +597,18 @@ if (SD.Load.SlotMeta(slotIndex, out var meta))
 | [dependsOnTypes](#dependsontypes-2) | 読み書き時に依存するデータのリスト。                                                  |
 
 ```csharp
-using System;
 using SaveDesign.Runtime;
 
-[SlotData, Serializable]
+[TempData]
 public class ExampleClass
 {
     public string value;
 }
 
 // 下記のようにアクセスできる
-SD.Slot.ExampleClass.value = "slot data example.";
+SD.Temp.ExampleClass.value = "temp data example.";
 
-var value = SD.Slot.ExampleClass.value;
+var value = SD.Temp.ExampleClass.value;
 ```
 
 ---
@@ -627,10 +626,9 @@ var value = SD.Slot.ExampleClass.value;
 また、階層パスは `static partial` クラスで生成されるため自由に拡張できます。
 
 ```csharp
-using System;
 using SaveDesign.Runtime;
 
-[TempData("Path1/Path2"), Serializable]
+[TempData("Path1/Path2")]
 public class ExampleClass { }
 
 // 下記のようにアクセスできる
