@@ -505,6 +505,64 @@ while offloading complex behavior to where it belongs — in the data model.
 
 ---
 
+### 🔔 Caution When Depending on Other Data
+
+In Save Design, each data type (`SharedData`, `SlotData`, `TempData`, etc.) is defined as a separate class.
+By default, **the order in which data is initialized, loaded, or saved is not guaranteed**.
+
+This becomes critical when a callback method (such as `IAfterLoadCallback`, `IBeforeSaveCallback`, or
+`IAfterInitializeCallback`)
+**accesses another data class** during execution.
+
+---
+
+#### ❌ What Can Go Wrong Without Ordered Execution
+
+For example, let’s say you want to initialize a value in your `GameSettings` (SharedData)
+by referencing a value from `Profile` (SharedData):
+
+```csharp
+[SharedData]
+public class GameSettings : IAfterLoadCallback
+{
+    public int volume;
+
+    public void OnAfterLoad()
+    {
+        volume = SD.Shared.Profile.defaultVolume; // ❌ May throw NullReferenceException
+    }
+}
+```
+
+If `Shared.Profile` hasn't been loaded yet, this code may result in a `NullReferenceException`
+or initialize with an incorrect value.
+
+---
+
+### ✅ Save Design’s Solution: Declaring Dependencies
+
+To resolve this, Save Design lets you **declare dependencies explicitly**
+by passing the type of the dependent data to the attribute:
+
+```csharp
+[SharedData(typeof(Profile))]
+public class GameSettings : IAfterLoadCallback
+{
+    ...
+}
+```
+
+With this declaration, Save Design guarantees that `GameSettings` will be initialized or loaded
+**after** `Profile`, ensuring it is safe to reference.
+
+> ✅ The dependent type must be of the **same data kind** (e.g., `SharedData` can only depend on other `SharedData`)  
+> ✅ In the case of `TempData`, the `ResetTiming` must also match
+
+This mechanism ensures **safe access to other data** inside callbacks
+and helps you build reliable save systems even in projects with complex dependencies.
+
+---
+
 ## 3.7 Async Processing (UniTask / await Support)
 
 Save Design can auto-generate **async variants** of its load/save APIs.

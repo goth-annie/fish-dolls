@@ -506,6 +506,61 @@ Save Design では、セーブやロードの直前／直後に処理を挟み�
 
 ---
 
+### 🔔 他のデータに依存する場合の注意
+
+Save Design では、複数のデータ（`SharedData`, `SlotData`, `TempData` など）を別々のクラスとして定義できますが、
+**データの初期化や読み書きの順序は、特別な指定をしない限り保証されません。**
+
+そのため、コールバック（`IAfterLoadCallback`, `IBeforeSaveCallback`, `IAfterInitializeCallback` など）の中で
+**他のデータの値を参照したい場合には注意が必要です**。
+
+---
+
+#### ❌ 順序が保証されていない場合に起きる問題の例
+
+たとえば、`GameSettings`（SharedData）内で、`Profile`（SharedData）の情報を参照して初期設定を行いたいとします：
+
+```csharp
+[SharedData, System.Serializable]
+public class GameSettings : IAfterLoadCallback
+{
+    public int volume;
+
+    void IAfterLoadCallback.OnAfterLoad()
+    {
+        volume = SD.Shared.Profile.defaultVolume; // ← ここでエラーになる可能性
+    }
+}
+```
+
+このとき、`Shared.Profile` がまだ読み込まれていなければ `NullReferenceException` が発生するか、
+意図しない初期値が使用されてしまう恐れがあります。
+
+---
+
+### ✅ Save Design の解決策：依存関係の明示
+
+Save Design では、データ定義属性に `Type` を渡すことで **依存関係を明示的に宣言**できます。
+
+```csharp
+[SharedData(typeof(Profile))]
+public class GameSettings : IAfterLoadCallback
+{
+    ...
+}
+```
+
+このように記述すると、Save Design は `GameSettings` の読み込みや初期化を
+必ず `Profile` よりも後に実行するよう処理順を調整します。
+
+> ✅ 依存先のクラスも同じデータ種別である必要があります（例：SharedData → SharedData）  
+> ✅ `[TempData]` の場合は `ResetTiming` も一致させる必要があります
+
+この仕組みにより、**コールバック内で他のデータに安全にアクセスできる**ようになり、
+複雑な依存関係を持つプロジェクトでも安心してデータ設計が行えます。
+
+---
+
 ## 3.7 非同期処理の導入（UniTask/await 対応）
 
 Save Design では、データの読み書きを **非同期で行う API** も自動生成されます。
