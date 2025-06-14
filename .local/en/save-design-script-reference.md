@@ -17,11 +17,12 @@ css: |-
    1.3 [IAfterLoadCallback](#13-iafterloadcallback)  
    1.4 [ISaveDesignConfig](#14-isavedesignconfig)
 2. [Attributes](#2-attributes)  
-   2.1 [SaveDesignRootAttribute](#21-savedesignrootattribute)  
-   2.2 [SharedDataAttribute](#22-shareddataattribute)  
-   2.3 [SlotDataAttribute](#23-slotdataattribute)  
-   2.4 [SlotMetaDataAttribute](#24-slotmetadataattribute)  
-   2.5 [TempDataAttribute](#25-tempdataattribute)
+   2.1 [EncryptorAttribute](#21-encryptorattribute)  
+   2.2 [SaveDesignRootAttribute](#22-savedesignrootattribute)  
+   2.3 [SharedDataAttribute](#23-shareddataattribute)  
+   2.4 [SlotDataAttribute](#24-slotdataattribute)  
+   2.5 [SlotMetaDataAttribute](#25-slotmetadataattribute)  
+   2.6 [TempDataAttribute](#26-tempdataattribute)
 3. [Enumerations](#3-enumerations)  
    3.1 [SerializerType](#31-serializertype)  
    3.2 [TempDataResetTiming](#32-tempdataresettiming)
@@ -259,7 +260,39 @@ Returning `null` or an empty string will generate a file with no extension.
 
 ## 2. Attributes
 
-### 2.1 SaveDesignRootAttribute
+### 2.1 EncryptorAttribute
+
+#### Description
+
+Used to incorporate encryption and composite processing when reading/writing data.
+
+```csharp
+using SaveDesign.Runtime;
+
+[Encryptor]
+public static class CustomEncryptor
+{
+    public static void Encrypt(ref byte[] data)
+    {
+        ...
+    }
+
+    public static void Decrypt(ref byte[] data)
+    {
+        ...
+    }
+}
+```
+
+---
+
+#### Constructors
+
+* public **EncryptorAttribute** ();
+
+---
+
+### 2.2 SaveDesignRootAttribute
 
 #### Description
 
@@ -305,7 +338,7 @@ See the [SerializerType](#31-serializertype) section for details.
 
 ---
 
-### 2.2 SharedDataAttribute
+### 2.3 SharedDataAttribute
 
 #### Description
 
@@ -414,7 +447,7 @@ public class C { }
 
 ---
 
-### 2.3 SlotDataAttribute
+### 2.4 SlotDataAttribute
 
 #### Description
 
@@ -524,7 +557,7 @@ public class C { }
 
 ---
 
-### 2.4 SlotMetaDataAttribute
+### 2.5 SlotMetaDataAttribute
 
 #### Description
 
@@ -576,7 +609,7 @@ SD.Save.Slot(0);
 
 ---
 
-### 2.5 TempDataAttribute
+### 2.6 TempDataAttribute
 
 #### Description
 
@@ -673,7 +706,7 @@ var value = SD.Temp.ExampleClass.value; // example
 
 if (SD.Load.Slot("identifier"))
 {
-    var value = SD.Temp.ExampleClass.value; // reset
+    value = SD.Temp.ExampleClass.value; // reset
 }
 ```
 

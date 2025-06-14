@@ -109,6 +109,7 @@ After importing it, the following structure will appear under `Assets/Plugins/Sa
 
 ```
 Assets/Plugins/Save Design/
+├── Runtime/        // Source code required for Save Design to work
 ├── Editor/         // Editor extensions (setup, encryption settings, code generation)
 ├── Samples/        // Usage examples and sample scenes
 └── Documentation/  // Script reference and usage guide (this file)
@@ -742,23 +743,23 @@ This script hooks into Save Design’s runtime processing and enables the follow
 If you need more advanced control — such as integrating a different encryption scheme —
 Save Design also supports **custom encryption logic**.
 
-The `Encryptor` class is declared as a `partial` class.
-You can implement the following two partial methods to hook into the process:
+You can incorporate your own processing by simply implementing the `Encrypt` and `Decrypt` functions in a class with the
+`Encryptor` attribute.
 
 ```csharp
-namespace SaveDesign.Runtime
-{
-    internal static partial class Encryptor
-    {
-        static partial void Encrypt(ref byte[] data)
-        {
-            ...
-        }
+using SaveDesign.Runtime;
 
-        static partial void Decrypt(ref byte[] data)
-        {
-            ...
-        }
+[Encryptor]
+public static class CustomEncryptor
+{
+    public static void Encrypt(ref byte[] data)
+    {
+        ...
+    }
+
+    public static void Decrypt(ref byte[] data)
+    {
+        ...
     }
 }
 ```

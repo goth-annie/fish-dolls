@@ -17,11 +17,12 @@ css: |-
    1.3 [IAfterLoadCallback](#13-iafterloadcallback)  
    1.4 [ISaveDesignConfig](#14-isavedesignconfig)
 2. [属性](#2-属性)  
-   2.1 [SaveDesignRootAttribute](#21-savedesignrootattribute)  
-   2.2 [SharedDataAttribute](#22-shareddataattribute)  
-   2.3 [SlotDataAttribute](#23-slotdataattribute)  
-   2.4 [SlotMetaDataAttribute](#24-slotmetadataattribute)  
-   2.5 [TempDataAttribute](#25-tempdataattribute)
+   2.1 [EncryptorAttribute](#21-encryptorattribute)  
+   2.2 [SaveDesignRootAttribute](#22-savedesignrootattribute)  
+   2.3 [SharedDataAttribute](#23-shareddataattribute)  
+   2.4 [SlotDataAttribute](#24-slotdataattribute)  
+   2.5 [SlotMetaDataAttribute](#25-slotmetadataattribute)  
+   2.6 [TempDataAttribute](#26-tempdataattribute)
 3. [列挙型](#3-列挙型)  
    3.1 [SerializerType](#31-serializertype)  
    3.2 [TempDataResetTiming](#32-tempdataresettiming)
@@ -255,7 +256,39 @@ Android など一部のプラットフォームは、 `Application.persistentDat
 
 ## 2. 属性
 
-### 2.1 SaveDesignRootAttribute
+### 2.1 EncryptorAttribute
+
+#### 説明
+
+データの読み書き時に暗号化処理・複合化処理を組み込む場合に使用する。
+
+```csharp
+using SaveDesign.Runtime;
+
+[Encryptor]
+public static class CustomEncryptor
+{
+    public static void Encrypt(ref byte[] data)
+    {
+        ...
+    }
+
+    public static void Decrypt(ref byte[] data)
+    {
+        ...
+    }
+}
+```
+
+---
+
+#### コンストラクタ
+
+* public **EncryptorAttribute** ();
+
+---
+
+### 2.2 SaveDesignRootAttribute
 
 #### 説明
 
@@ -300,7 +333,7 @@ ExampleClass.Load
 
 ---
 
-### 2.2 SharedDataAttribute
+### 2.3 SharedDataAttribute
 
 #### 説明
 
@@ -409,7 +442,7 @@ public class C { }
 
 ---
 
-### 2.3 SlotDataAttribute
+### 2.4 SlotDataAttribute
 
 #### 説明
 
@@ -518,7 +551,7 @@ public class C { }
 
 ---
 
-### 2.4 SlotMetaDataAttribute
+### 2.5 SlotMetaDataAttribute
 
 #### 説明
 
@@ -569,7 +602,7 @@ if (SD.Load.SlotMeta(slotIndex, out var meta))
 
 ---
 
-### 2.5 TempDataAttribute
+### 2.6 TempDataAttribute
 
 #### 説明
 
@@ -664,7 +697,7 @@ var value = SD.Temp.ExampleClass.value; // example
 
 if (SD.Load.Slot("identifier"))
 {
-    var value = SD.Temp.ExampleClass.value; // reset
+    value = SD.Temp.ExampleClass.value; // reset
 }
 ```
 

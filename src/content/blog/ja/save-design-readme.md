@@ -717,22 +717,22 @@ Save Design には、Unity エディタ上で簡単に暗号化設定を行え�
 ## 5.2 独自暗号化処理の組み込み方法
 
 より細かい制御や特殊な暗号方式を使いたい場合、Save Design では**暗号化ロジックを自前で差し替えることも可能**です。
-`Encryptor` クラスは `partial` クラスとして設計されており、以下の2つの部分メソッドを任意に実装するだけで独自処理を組み込めます。
+`Encryptor` 属性を付与したクラスに `Encrypt` 関数と `Decrypt` 関数を実装するだけで独自処理を組み込めます。
 
 ```csharp
-namespace SaveDesign.Runtime
+using SaveDesign.Runtime;
+
+[Encryptor]
+public static class CustomEncryptor
 {
-    internal static partial class Encryptor
+    public static void Encrypt(ref byte[] data)
     {
-        static partial void Encrypt(ref byte[] data)
-        {
-            ...
-        }
-        
-        static partial void Decrypt(ref byte[] data)
-        {
-            ...
-        }
+        ...
+    }
+
+    public static void Decrypt(ref byte[] data)
+    {
+        ...
     }
 }
 ```
