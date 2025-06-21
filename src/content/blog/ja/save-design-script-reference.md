@@ -772,10 +772,11 @@ internal parital class SD { }
 
 #### 変数
 
-| 変数名           | 説明                                |
-|---------------|-----------------------------------|
-| `JsonUtility` | Unity 標準の JSON ライブラリ。             |
-| `MessagePack` | MessagePack for C# \[MIT License] |
+| 変数名              | 説明                                |
+|------------------|-----------------------------------|
+| `JsonUtility`    | Unity 標準の JSON ライブラリ。             |
+| `MessagePack`    | MessagePack for C# \[MIT License] |
+| `NewtonsoftJson` | Newtonsoft.Json \[MIT License]    |
 
 ---
 
@@ -1340,6 +1341,7 @@ namespace SaveDesign.Runtime
 
 - [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) — MIT License
 - [UniTask](https://github.com/Cysharp/UniTask) — MIT License
+- [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) — MIT License
 
 これらのライブラリは**パッケージに含まれていません**。
 ライセンスの詳細については、 `Third-Party Notices.txt` を参照してください。

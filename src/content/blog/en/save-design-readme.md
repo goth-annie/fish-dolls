@@ -178,6 +178,13 @@ To avoid this, keep only the components you need and delete the rest.
 * If needed, install [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp)
 * Add `[SaveDesignRoot(SerializerType.MessagePack)]` to the root class
 
+#### Newtonsoft.Json (feature-rich JSON serializer)
+
+* To use it, install [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json).
+* Enable support by adding `[SaveDesignRoot(SerializerType.NewtonsoftJson)]` to your root class.
+* If you need to serialize common Unity types such as `Vector3`, we also recommend
+  installing [Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters).
+
 > These libraries are **not included** with Save Design.
 > Please install and use them as needed, following their respective licenses.
 
@@ -808,10 +815,11 @@ These are distributed under the MIT license.
 
 ### ■ Optional Third-Party Libraries
 
-| Library                                                                        | License | Purpose                              |
-|--------------------------------------------------------------------------------|---------|--------------------------------------|
-| [UniTask](https://github.com/Cysharp/UniTask)                                  | MIT     | Enables async operations (Async API) |
-| [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT     | High-speed binary serializer         |
+| Library                                                                        | License | Purpose                                     |
+|--------------------------------------------------------------------------------|---------|---------------------------------------------|
+| [UniTask](https://github.com/Cysharp/UniTask)                                  | MIT     | Enables async operations (Async API)        |
+| [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT     | High-speed binary serializer                |
+| [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)                  | MIT     | High-performance JSON serializer (optional) |
 
 These libraries are **not included** in Save Design by default.
 They are **optional**, and users must manually install and manage them.

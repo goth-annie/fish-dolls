@@ -162,10 +162,9 @@ Save Design の仕組みをすぐに使い始めることができます。
 ### ⚠️ 不要なサンプルを削除してください
 
 Save Design には、導入直後の動作確認や使い方の参考として、簡単な **サンプルクラス**や**サンプルシーン**が同梱されています。
-しかし、これらは実際のゲームには不要であることが多く、**そのままにしておくと最終ビルドにも含まれてしまう可能性があります
-**。
+しかし、これらは実際のゲームには不要であり、**そのままにしておくと最終ビルドにも含まれてしまう可能性があります**。
 
-開発に必要な最小構成だけを残し、本番環境に不要なデータを含めないようにしましょう。
+`Samples` フォルダごと削除して、本番環境に不要なデータを含めないようにしましょう。
 
 ---
 
@@ -180,6 +179,14 @@ Save Design には、導入直後の動作確認や使い方の参考として�
 
 * 使用したい場合は、[MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) を導入してください
 * ルートクラスに `[SaveDesignRoot(SerializerType.MessagePack)]` を付けることで対応可能です
+
+#### Newtonsoft.Json（高機能JSONシリアライザ）
+
+* 使用したい場合は、[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) を導入してください
+* ルートクラスに `[SaveDesignRoot(SerializerType.NewtonsoftJson)]` を付けることで対応可能です
+* `Vector3`
+  などの一般的なUnity型を保存する場合は、[Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters)
+  の導入もおすすめします
 
 > これらのライブラリは Save Design に**同梱されていません**。
 > 必要に応じて各自導入し、ライセンスに従って使用してください。
@@ -779,6 +786,7 @@ Save Design は、下記のサードパーティ製ライブラリを利用可�
 |--------------------------------------------------------------------------------|-------|-------------------------|
 | [UniTask](https://github.com/Cysharp/UniTask)                                  | MIT   | 非同期処理のサポート（`Async` API） |
 | [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT   | 高速バイナリシリアライザー（任意使用）     |
+| [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)                  | MIT   | 高機能な JSON シリアライザー（任意使用） |
 
 これらのライブラリは Save Design に同梱されておらず、**オプション機能として利用者が導入・管理する必要があります**。
 そのため、**ビルドに含めるかどうかは開発者の判断に委ねられます**。
