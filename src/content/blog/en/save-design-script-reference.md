@@ -10,10 +10,14 @@ heroImage: '/fish-dolls/images/save-design.png'
 ## Table of Contents
 
 1. [Interfaces](#1-interfaces)  
-   1.1 [IBeforeSaveCallback](#11-ibeforesavecallback)  
-   1.2 [IAfterInitializeCallback](#12-iafterinitializecallback)  
+   1.1 [IAfterInitializeCallback](#11-iafterinitializecallback)  
+   1.2 [IAfterInitializeRollback](#12-iafterinitializerollbackt)  
    1.3 [IAfterLoadCallback](#13-iafterloadcallback)  
-   1.4 [ISaveDesignConfig](#14-isavedesignconfig)
+   1.4 [IAfterLoadRollback](#14-iafterloadrollbackt)  
+   1.5 [IBeforeSaveCallback](#15-ibeforesavecallback)  
+   1.6 [IBeforeSaveRollback](#16-ibeforesaverollback)  
+   1.7 [ISaveDesignConfig](#17-isavedesignconfig)
+
 2. [Attributes](#2-attributes)  
    2.1 [EncryptorAttribute](#21-encryptorattribute)  
    2.2 [SaveDesignRootAttribute](#22-savedesignrootattribute)  
@@ -21,12 +25,15 @@ heroImage: '/fish-dolls/images/save-design.png'
    2.4 [SlotDataAttribute](#24-slotdataattribute)  
    2.5 [SlotMetaDataAttribute](#25-slotmetadataattribute)  
    2.6 [TempDataAttribute](#26-tempdataattribute)
+
 3. [Enumerations](#3-enumerations)  
-   3.1 [SerializerType](#31-serializertype)  
-   3.2 [TempDataResetTiming](#32-tempdataresettiming)
+   3.1 [ExceptionPolicy](#31-exceptionpolicy)  
+   3.2 [SerializerType](#32-serializertype)  
+   3.3 [TempDataResetTiming](#33-tempdataresettiming)
+
 4. [Classes](#4-classes)  
-   4.1 [Class with SaveDesignRoot attribute](#41-class-with-savedesignroot-attribute)  
-   4.2 [Encryptor](#42-encryptor)
+   4.1 [Class with SaveDesignRoot attribute](#41-class-with-savedesignroot-attribute)
+
 5. [Third-Party Licenses](#5-third-party-licenses)
 
 ---
@@ -35,59 +42,7 @@ heroImage: '/fish-dolls/images/save-design.png'
 
 ## 1. Interfaces
 
-### 1.1 IBeforeSaveCallback
-
-#### Description
-
-Use this interface if you want to perform some processing before the data is stored.
-
-This interface must be implemented in a class with one of the following attributes: `SharedData`, `SlotData`, or
-`SlotMetaData`,
-It is ignored if implemented in a class with only the `TempData` attribute or none of the data attributes.
-
----
-
-#### Public Methods
-
-| Method                        | Description                             |
-|-------------------------------|-----------------------------------------|
-| [OnBeforeSave](#onbeforesave) | It is called just before data is saved. |
-
----
-
-#### OnBeforeSave
-
-* public void **OnBeforeSave** ();
-
-##### Description
-
-It is called before data is saved.
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class ExampleClass : IBeforeSaveCallback
-{
-    static readonly DateTime s_epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    
-    // JsonUtility does not support serialization of DateTime type, so it is stored as a long type.
-    public long saveDateTime;
-    
-    public DateTime SaveDateTime => s_epoch.AddMilliseconds(saveDateTime).ToLocalTime();
-
-    void IBeforeSaveCallback.OnBeforeSave()
-    {
-        // Converts DateTime type to long and writes it just before the data is saved.
-        saveDateTime = (long)(DateTime.Now.ToUniversalTime() - s_epoch).TotalMilliseconds;
-    }
-}
-```
-
----
-
-### 1.2 IAfterInitializeCallback
+### 1.1 IAfterInitializeCallback
 
 #### Description
 
@@ -142,6 +97,75 @@ public class ExampleClass : IAfterInitializeCallback
 
 ---
 
+### 1.2 IAfterInitializeRollback\<T>
+
+#### Description
+
+Use this interface when an exception occurs during initialization processing and you need to roll back side effects
+caused by the callback implemented in [IAfterInitializeCallback](#11-iafterinitializecallback).
+
+##### Cases where it is called
+
+* When an exception occurred during initialization processing,
+  [IAfterInitializeCallback](#11-iafterinitializecallback).[OnAfterInitialize](#onafterinitialize)()
+  was being called.
+
+##### Cases where it is not called
+
+* [IAfterInitializeCallback](#11-iafterinitializecallback) is not implemented
+* When an exception occurred during initialization,
+  [IAfterInitializeCallback](#11-iafterinitializecallback).[OnAfterInitialize](#onafterinitialize)()
+  was not called
+
+---
+
+#### Public Methods
+
+| Method                                                  | Description                                              |
+|---------------------------------------------------------|----------------------------------------------------------|
+| [OnAfterInitializeRollback](#onafterinitializeRollback) | Called when rolling back data initialization processing. |
+
+---
+
+#### OnAfterInitializeRollback
+
+* public void **OnAfterInitializeRollback** (T previousData);
+
+##### Description
+
+Called when rolling back data initialization processing.
+
+```csharp
+using System;
+using SaveDesign.Runtime;
+using UnityEngine;
+
+[SharedData, Serializable]
+public class ExampleClass : IAfterInitializeCallback, IAfterInitializeRollback<ExampleClass>
+{
+    [SerializedField] int frameRate;
+        
+    public void SetFrameRate(int frameRate)
+    {
+        this.frameRate = frameRate;
+        Application.targetFrameRate = frameRate;
+    }
+    
+    void IAfterInitializeCallback.OnAfterInitialize()
+    {
+        SetFrameRate(60);
+    }
+    
+    void IAfterInitializeRollback.OnAfterInitializeRollback(ExampleClass previousData)
+    {
+        if (previousData != null) Application.targetFrameRate = previousData.frameRate;
+        else Application.targetFrameRate = -1;
+    }
+}
+```
+
+---
+
 ### 1.3 IAfterLoadCallback
 
 #### Description
@@ -187,7 +211,142 @@ public class ExampleClass : IAfterLoadCallback
 
 ---
 
-### 1.4 ISaveDesignConfig
+### 1.4 IAfterLoadRollback\<T>
+
+#### Description
+
+Use this interface when an exception occurs during the loading process and you need to roll back side effects caused by
+the callback implemented in [IAfterLoadCallback](#13-iafterloadcallback).
+
+---
+
+#### Public Methods
+
+| Method                                      | Description                                       |
+|---------------------------------------------|---------------------------------------------------|
+| [OnAfterLoadRollback](#onafterloadrollback) | Called when rolling back the data read operation. |
+
+---
+
+#### OnAfterLoadRollback
+
+* public void **OnAfterLoadRollback** (T previousData);
+
+##### Description
+
+Called when rolling back the data read operation.
+
+```csharp
+using System;
+using SaveDesign.Runtime;
+using UnityEngine;
+
+[SharedData, Serializable]
+public class ExampleClass : IAfterLoadCallback, IAfterLoadRollback<ExampleClass>
+{
+    [SerializedField] int frameRate;
+
+    public void SetFrameRate(int frameRate)
+    {
+        this.frameRate = frameRate;
+        Application.targetFrameRate = frameRate;
+    }
+
+    void IAfterLoadCallback.OnAfterLoad()
+    {
+        SetFrameRate(frameRate);
+    }
+    
+    void IAfterLoadRollback.OnAfterLoadRollback(ExampleClass previousData)
+    {
+        if (previousData != null) Application.targetFrameRate = previousData.frameRate;
+        else Application.targetFrameRate = -1;
+    }
+}
+```
+
+---
+
+### 1.5 IBeforeSaveCallback
+
+#### Description
+
+Use this interface if you want to perform some processing before the data is stored.
+
+This interface must be implemented in a class with one of the following attributes: `SharedData`, `SlotData`, or
+`SlotMetaData`,
+It is ignored if implemented in a class with only the `TempData` attribute or none of the data attributes.
+
+---
+
+#### Public Methods
+
+| Method                        | Description                             |
+|-------------------------------|-----------------------------------------|
+| [OnBeforeSave](#onbeforesave) | It is called just before data is saved. |
+
+---
+
+#### OnBeforeSave
+
+* public void **OnBeforeSave** ();
+
+##### Description
+
+It is called before data is saved.
+
+```csharp
+using System;
+using SaveDesign.Runtime;
+
+[SharedData, Serializable]
+public class ExampleClass : IBeforeSaveCallback
+{
+    static readonly DateTime s_epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    
+    // JsonUtility does not support serialization of DateTime type, so it is stored as a long type.
+    public long saveDateTime;
+    
+    public DateTime SaveDateTime => s_epoch.AddMilliseconds(saveDateTime).ToLocalTime();
+
+    void IBeforeSaveCallback.OnBeforeSave()
+    {
+        // Converts DateTime type to long and writes it just before the data is saved.
+        saveDateTime = (long)(DateTime.Now.ToUniversalTime() - s_epoch).TotalMilliseconds;
+    }
+}
+```
+
+---
+
+### 1.6 IBeforeSaveRollback
+
+#### Description
+
+Use this interface when an exception occurs during write processing and you need to roll back side effects caused by the
+callback implemented in [IBeforeSaveCallback](#15-ibeforesavecallback).
+
+---
+
+#### Public Methods
+
+| Method                                        | Description                                      |
+|-----------------------------------------------|--------------------------------------------------|
+| [OnBeforeSaveRollback](#onbeforesaverollback) | Called when rolling back a data write operation. |
+
+---
+
+#### OnBeforeSaveRollback
+
+* public void **OnBeforeSaveRollback** ();
+
+##### Description
+
+Called when rolling back a data write operation.
+
+---
+
+### 1.7 ISaveDesignConfig
 
 #### Description
 
@@ -203,6 +362,7 @@ An interface that provides settings for data storage.
 | [GetSharedDataFileName](#getshareddatafilename)       | Obtain the name of the file in which the shared data is to be stored.    |
 | [GetSlotDataFileName](#getslotdatafilename)           | Get the file name of the data to be saved separately for each save slot. |
 | [GetFileExtension](#getfileextension)                 | Gets the file extension of the file to be saved.                         |
+| [GetExceptionPolicy](#getexceptionpolicy)             | Get the type of exception handling.                                      |
 
 ---
 
@@ -251,6 +411,16 @@ Obtains the name of the file that stores slot-specific data.
 Gets the file extension of the file to save.
 
 Returning `null` or an empty string will generate a file with no extension.
+
+---
+
+#### GetExceptionPolicy
+
+* public [ExceptionPolicy](#31-exceptionpolicy) **GetExceptionPolicy** ();
+
+##### Description
+
+Retrieve the type of behavior when an exception occurs during initialization, loading, or saving.
 
 ---
 
@@ -763,7 +933,25 @@ public class D { }
 
 ## 3. Enumerations
 
-### 3.1 SerializerType
+### 3.1 ExceptionPolicy
+
+#### Description
+
+The type of exception handling for exceptions occurring during initialization or read/write operations.
+
+---
+
+#### Properties
+
+| Parameters       | Description                                                                                                                                            |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Throw`          | Throws the exception as-is. Use this when the caller wants to perform a `try-catch` and exercise fine-grained control over exception handling.         |
+| `LogAndSuppress` | The exception is logged using `UnityEngine.Debug.LogException` and then suppressed.                                                                    |
+| `Suppress`       | Swallows the thrown exception. Since no logs are output, this is used when you don't want to show errors to users or wish to silently ignore failures. |
+
+---
+
+### 3.2 SerializerType
 
 #### Description
 
@@ -790,7 +978,7 @@ internal parital class SD { }
 
 ---
 
-### 3.2 TempDataResetTiming
+### 3.3 TempDataResetTiming
 
 #### Description
 
@@ -900,19 +1088,6 @@ The generated entry points are as follows.
 | [Slot](#slot)             | Entry points for accessing data to be stored separately per save slot. |
 | [Temp](#temp)             | Entry point for accessing temporary data that will not be stored.      |
 
-If the conditions are met, the four entry points `Initialize` , `Load` , `Save` , and `Delete` will have `UniTask` or
-`Awaitable` based
-**Asynchronous functions** based on `UniTask` or `Awaitable` are generated.
-
-In the case of `UniTask`, by introducing `UniTask` into the project and defining the scripting symbol
-`GAME_DATA_MANAGER_SUPPORT_UNITASK`
-UniTask-based asynchronous functions are generated by defining the scripting symbol `SAVE_DESIGN_SUPPORT_UNITASK`.
-
-In the case of `Awaitable`, projects with version `Unity 2023.1` or later will automatically generate Awaitable
-based asynchronous functions.  
-However, if the project meets the conditions to generate `UniTask` based asynchronous functions, they will take priority
-over the Awaitable based asynchronous functions.
-
 ---
 
 #### Initialize
@@ -926,6 +1101,7 @@ Entry point to data initialization function.
 ##### Static Methods
 
 * public static void **Shared** ();
+* public static void **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
@@ -935,10 +1111,6 @@ For shared data, it is recommended to implement a process that performs a read o
 the data if it fails.
 
 ```csharp
-SD.Initialize.Shared();             // sync
-await SD.Initialize.Async.Shared(); // async
-
-
 [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 static void InitSaveDesignConfig()
 {
@@ -953,6 +1125,7 @@ static void InitSaveDesignConfig()
 ---
 
 * public static void **Slot** ();
+* public static void **Slot** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
@@ -961,9 +1134,6 @@ Initialize the data to be saved separately for each save slot.
 **Run it when you start a new game**.
 
 ```csharp
-SD.Initialize.Slot();             // sync
-await SD.Initialize.Async.Slot(); // async
-
 public void NewGame()
 {
     SD.Slot.Player.money = 100; // ❌ Error because data not initialized
@@ -987,6 +1157,7 @@ Entry point to the data read function.
 ##### Static Methods
 
 * public static bool **Shared** ();
+* public static bool **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
@@ -996,10 +1167,6 @@ For shared data, it is recommended to implement a process that performs loading 
 initializes the data if it fails.
 
 ```csharp
-SD.Load.Shared();             // sync
-await SD.Load.Async.Shared(); // async
-
-
 [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 static void InitSaveDesignConfig()
 {
@@ -1014,7 +1181,9 @@ static void InitSaveDesignConfig()
 ---
 
 * public static bool **Slot** (int **slotIndex**);
+* public static bool **Slot** (int **slotIndex**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 * public static bool **Slot** (string **identifier**);
+* public static bool **Slot** (string **identifier**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
@@ -1028,10 +1197,6 @@ We recommend that you use the loading function by identifier when loading data t
 **save slots**.
 
 ```csharp
-SD.Load.Slot(0);                  // sync
-await SD.Load.Async.Slot("auto"); // async
-
-
 public void LoadGame(int slotIndex)
 {
     if (SD.Load.Slot(slotIndex))
@@ -1045,7 +1210,11 @@ public void LoadGame(int slotIndex)
 ---
 
 * public static bool **SlotMeta** (int **slotIndex**, out ? **meta**);
+* public static bool **SlotMeta** (int **slotIndex**, out ? **meta**, [ExceptionPolicy](#31-exceptionpolicy)
+  exceptionPolicy);
 * public static bool **SlotMeta** (string **identifier**, out ? **meta**);
+* public static bool **SlotMeta** (string **identifier**, out ? **meta**, [ExceptionPolicy](#31-exceptionpolicy)
+  exceptionPolicy);
 
 ###### Description
 
@@ -1094,6 +1263,7 @@ Meta information is automatically saved when the `Slot` is saved.
 ##### Static Methods
 
 * public static bool **Shared** ();
+* public static bool **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
@@ -1102,10 +1272,6 @@ Save shared data.
 It is recommended to recall it after changing game settings or at the end of a game.
 
 ```csharp
-SD.Save.Shared();             // sync
-await SD.Save.Async.Shared(); // async
-
-
 public void SaveSetting()
 {
     if (SD.Save.Shared())
@@ -1118,7 +1284,9 @@ public void SaveSetting()
 ---
 
 * public static bool **Slot** (int **slotIndex**);
+* public static bool **Slot** (int **slotIndex**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 * public static bool **Slot** (string **identifier**);
+* public static bool **Slot** (string **identifier**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
@@ -1129,10 +1297,6 @@ used when saving data unrelated to **save slots**, such as autosaves, checkpoint
 We recommend that you use it when saving data that has nothing to do with a **save slot**.
 
 ```csharp
-SD.Save.Slot(0);                  // sync
-await SD.Save.Async.Slot("auto"); // async
-
-
 public void SaveGame(int slotIndex)
 {
     if (SD.Save.Slot(slotIndex))
@@ -1157,28 +1321,29 @@ Meta information is automatically deleted when the `Slot` is deleted.
 ##### Static Methods
 
 * public static bool **Shared** ();
+* public static bool **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
 Delete shared data.
 
 ```csharp
-SD.Delete.Shared();             // sync
-await SD.Delete.Async.Shared(); // async
+SD.Delete.Shared();
 ```
 
 ---
 
 * public static bool **Slot** (int **slotIndex**);
+* public static bool **Slot** (int **slotIndex**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 * public static bool **Slot** (string **identifier**);
+* public static bool **Slot** (string **identifier**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
 
 ###### Description
 
 Delete data to be saved separately for each save slot, specifying the **slot number** or **identifier**.
 
 ```csharp
-SD.Delete.Slot(0);                  // sync
-await SD.Delete.Async.Slot("auto"); // async
+SD.Delete.Slot(0);
 ```
 
 ---
@@ -1254,112 +1419,11 @@ SD.Temp.ExampleClass.value = 10;
 
 ---
 
-#### Private partial Methods
-
-| Method                              | Description                                                                   |
-|-------------------------------------|-------------------------------------------------------------------------------|
-| [OnGameDataError](#ongamedataerror) | Receives exceptions that occur during initialization or read/write processes. |
-
----
-
-##### OnGameDataError
-
-###### Description
-
-Receives exceptions that occur during initialization or read/write processes.
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-using UnityEngine;
-
-[SaveDesignRoot]
-internal partial class SD
-{
-    static partial void OnGameDataError(Exception e)
-    {
-        Debug.LogException(e);
-    }
-}
-```
-
----
-
-### 4.2 Encryptor
-
-internal static partial class **Encryptor**
-
-#### Description
-
-If you wish to incorporate encryption processing, implement a partial method of this class.
-
-#### Private static partial Methods
-
-| Method              | Description   |
-|---------------------|---------------|
-| [Encrypt](#encrypt) | Encrypt data. |
-| [Decrypt](#decrypt) | Decrypt data. |
-
----
-
-##### Encrypt
-
-* static partial void **Encrypt** (ref byte[] **data**);
-
-###### Description
-
-A partial function to incorporate data encryption.
-
-It is returned by substituting `byte[]` after encryption for the argument `data`.
-
-```csharp
-namespace SaveDesign.Runtime
-{
-    internal static partial class Encryptor
-    {
-        static partial void Encrypt(ref byte[] data)
-        {
-            ...
-        }
-    }
-}
-```
-
----
-
-##### Decrypt
-
-* static partial void **Decrypt** (ref byte[] **data**);
-
-###### Description
-
-A partial function to incorporate data compositing.
-
-Returns by substituting `byte[]` after encryption for the argument `data`.
-
-```csharp
-namespace SaveDesign.Runtime
-{
-    internal static partial class Encryptor
-    {
-        static partial void Decrypt(ref byte[] data)
-        {
-            ...
-        }
-    }
-}
-```
-
----
-
-<div class="page-break"></div>
-
 ## 5. Third-Party Licenses
 
 This package may generate code that references the following libraries:
 
 - [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) — MIT License
-- [UniTask](https://github.com/Cysharp/UniTask) — MIT License
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) — MIT License
 
 These libraries are **not included** in the package.  

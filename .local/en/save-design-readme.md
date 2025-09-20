@@ -1,39 +1,36 @@
 ﻿---
-stylesheet: https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css
-body_class: markdown-body
-css: |-
-   .page-break { page-break-after: always; }
-   .markdown-body { font-size: 11px; }
-   .markdown-body pre > code { white-space: pre-wrap; }
+title: Save Design - Getting Started Guide
+description: Learn how to install, set up, and use Save Design for Unity. This step-by-step guide walks you through basic usage and common scenarios.
+pubDate: '2025-05-25'
+heroImage: '/fish-dolls/images/save-design.png'
 ---
 
-# 📄 Save Design User's Guide - Table of Contents
+# 📄 Save Design User Guide - Table of Contents
 
 1. [Introduction](#1-introduction)  
-   1.1 [Thank You & Script Reference](#11-thank-you--script-reference)  
-   1.2 [What is Save Design (Overview of Features and Mechanisms)](#12-what-is-save-design-features-and-architecture-overview)
+   1.1 [Thank You for Your Purchase & Script Reference Guide](#11-thank-you-for-your-purchase--script-reference-guide)  
+   1.2 [What is Save Design (Overview of Features and Mechanism)](#12-what-is-save-design-overview-of-features-and-mechanism)
 
-2. [Minimum Setup Steps](#2-minimum-setup-steps)  
-   2.1 [Prerequisites (Unity Version / Installation)](#21-prerequisites-unity-version--installation)  
+2. [Minimal Setup Steps](#2-minimal-setup-steps)  
+   2.1 [Requirements (Unity Version / Installation)](#21-requirements-unity-version--installation)  
    2.2 [Creating Data Definition Classes](#22-creating-data-definition-classes)
 
 3. [Practical Usage Examples](#3-practical-usage-examples)  
-   3.1 [Reading & Writing Shared Data](#31-reading--writing-shared-data)  
-   3.2 [Slot Saves and Auto Save](#32-slot-saves-and-auto-save)  
-   3.3 [Using SlotMetaData + Cautions](#33-using-slotmetadata--cautions)  
-   3.4 [Managing Temporary State with TempData](#34-managing-temporary-state-with-tempdata)  
-   3.5 [Leveraging Initialize Processing](#35-leveraging-initialize-processing)  
-   3.6 [Using Callbacks During Read/Write](#36-using-callbacks-during-readwrite)  
-   3.7 [Async Processing (UniTask / await Support)](#37-async-processing-unitask--await-support)
+   3.1 [Reading and Writing Shared Data](#31-reading-and-writing-shared-data)  
+   3.2 [Slot Saves and Auto-Saves](#32-slot-saves-and-auto-saves)  
+   3.3 [Using and Cautions for SlotMetaData](#33-using-and-cautions-for-slotmetadata)  
+   3.4 [Managing Temporary States with TempData](#34-managing-temporary-states-with-tempdata)  
+   3.5 [How to Use Initialization](#35-how-to-use-initialization)  
+   3.6 [How to Use Callbacks During Read/Write](#36-how-to-use-callbacks-during-readwrite)
 
-4. [Common Use-Cases](#4-common-use-cases)  
-   4.1 [How to Handle Data Structure Changes](#41-how-to-handle-data-structure-changes)  
-   4.2 [How to Check Errors During Read/Write](#42-how-to-check-errors-during-readwrite)  
-   4.3 [Initializing Only Part of the Data](#43-initializing-only-part-of-the-data)
+4. [Common Use Cases](#4-common-use-cases)  
+   4.1 [How to Handle Data Structure Changes](#41-how-to-handle-changes-in-data-structures)  
+   4.2 [How to Check Errors During Read/Write](#42-handling-exceptions-with-exceptionpolicy)  
+   4.3 [How to Initialize Only Part of the Data](#43-initializing-only-part-of-the-data)
 
 5. [Security and Encryption (Optional)](#5-security-and-encryption-optional)  
-   5.1 [Enabling Encryption (Editor Tool)](#51-enabling-encryption-editor-tool)  
-   5.2 [Implementing Custom Encryption Logic](#52-implementing-custom-encryption-logic)
+   5.1 [How to Enable Encryption (Editor Tool)](#51-how-to-enable-encryption-editor-tool)  
+   5.2 [How to Integrate Custom Encryption](#52-how-to-implement-custom-encryption)
 
 ---
 
@@ -41,184 +38,184 @@ css: |-
 
 # 1. Introduction
 
-## 1.1 Thank You & Script Reference
+## 1.1 Thank You for Your Purchase & Script Reference Guide
 
 Thank you very much for purchasing **Save Design**.
-We hope this asset helps make the implementation and maintenance of save functionality in your project more comfortable
-and efficient.
+We hope this asset makes the implementation and maintenance of save features in your project more comfortable.
 
-This document explains the **basic usage** and setup process of Save Design.
-For more technical information such as detailed specifications of each API, attribute usage, and interface definitions,
-please refer to the separately provided **"Script Reference"**.
+This document explains the **basic usage of Save Design** and the setup flow.
+For more technical information such as detailed API specifications, attribute usage, and interface definitions, please
+also refer to the separate **Script Reference**.
 
-> The Script Reference is included as `Documentation/save-design-script-reference.pdf`.
-> Reading it together with this guide will help you use Save Design more smoothly.
+> The Script Reference is included in `Documentation/save-design-script-reference.pdf`.
+> Reading it together with this usage guide will help you use Save Design more smoothly.
 
 ---
 
-## 1.2 What is Save Design? (Features and Architecture Overview)
+## 1.2 What is Save Design (Overview of Features and Mechanism)
 
 **Save Design** is a save data management framework designed for Unity.
-Its most notable feature is the ability to **access save data without using any key strings**.
+Its most distinctive feature is that you can **access save data without using string keys at all**.
 
-Developers explicitly define save-target classes using attributes like `[SharedData]` and `[SlotData]`.
-Save Design then **auto-generates static APIs** based on those classes,
-allowing safe and intuitive save/load/initialize operations with IDE auto-completion.
+Developers explicitly define target classes for saving using attributes like `[SharedData]` or `[SlotData]`.
+Save Design then **automatically generates static APIs**, enabling type-safe save/load/initialize operations with IDE
+auto-completion.
 
 ---
 
-### 🔧 Core Components of Save Design
+### 🔧 Components of Save Design
 
-| Component                                                | Description                                                                           |
-|----------------------------------------------------------|---------------------------------------------------------------------------------------|
-| **Data definition via attributes**                       | Classify save targets using `[SharedData]`, `[SlotData]`, `[TempData]`, etc.          |
-| **Automatic generation of static APIs**                  | Functions like `SD.Save.Slot(...)` and `SD.Load.Shared()` are generated automatically |
-| **Strong auto-completion and rename safety**             | All operations are type-safe, preventing typos and update omissions                   |
-| **Easy to integrate**                                    | Simply add attributes – minimal setup and initialization required                     |
-| **Optional support for encryption and async processing** | AES + HMAC encryption and `async/await`-based APIs can be enabled if needed           |
+| Component                                    | Description                                                                             |
+|----------------------------------------------|-----------------------------------------------------------------------------------------|
+| **Data Definition by Attributes**            | Use `[SharedData]`, `[SlotData]`, `[TempData]`, etc. to classify save targets           |
+| **Automatic Static API Generation**          | Functions such as `SD.Save.Slot(...)` or `SD.Load.Shared()` are automatically generated |
+| **Strong Support for Completion & Renaming** | All operations are based on type information, preventing key typos and missed updates   |
+| **Easy to Introduce**                        | Just add attributes to start, with minimal initialization and setup                     |
+| **Optional Encryption Support**              | AES + HMAC encryption can be enabled when needed                                        |
 
 ---
 
 ### 🎯 Goals of Save Design
 
-* Maintain a **well-organized save structure** even with complex data
-* Make save logic **type-safe and easy to manage**
-* Flexibly handle **practical save requirements**, such as multiple slots and temporary session data
+* Maintain **organized save design** even as data structures become complex
+* Implement and maintain save processing in a **type-safe and simple way**
+* Flexibly accommodate realistic save requirements such as **multiple slots and temporary states**
 
-For developers with these goals, Save Design is a **reliable tool that eliminates the hassle of save systems**.
+For developers with these needs, Save Design is a reliable tool that can **eliminate the hassle around saving**.
 
 ---
 
 <div class="page-break"></div>
 
-# 2. Minimum Setup Steps
+# 2. Minimal Setup Steps
 
-## 2.1 Prerequisites (Unity Version / Installation)
+## 2.1 Requirements (Unity Version / Installation)
 
 ### ✅ Supported Unity Versions
 
 * **Unity 2022.3 LTS or later** is recommended
-* Your version must support APIs equivalent to .NET Standard 2.1
+* Must be a version that supports APIs equivalent to .NET Standard 2.1
 
 ---
 
 ### 📦 Importing the Package
 
 Save Design is distributed as a Unity package.
-After importing it, the following structure will appear under `Assets/Plugins/Save Design/`:
+After import, the following structure will be deployed under `Assets/Plugins/Save Design/`:
 
 ```
 Assets/Plugins/Save Design/
-├── Runtime/        // Source code required for Save Design to work
 ├── Editor/         // Editor extensions (setup, encryption settings, code generation)
+├── Runtime/        // Core functionality such as attributes and interfaces
 ├── Samples/        // Usage examples and sample scenes
-└── Documentation/  // Script reference and usage guide (this file)
+└── Documentation/  // Script reference and this usage guide
 ```
 
 ---
 
-### 🔧 Easy Setup from the Editor
+### 🔧 Easy Setup via Editor Tool
 
-Save Design comes with a **dedicated editor tool** to simplify initial setup.
-You can complete script scaffolding and configuration asset creation in just a few clicks.
-
----
-
-#### 🔹 Auto-Generate Scripts
-
-1. Open the Save Design Setup window from the menu:
-   **Tools > Save Design > Setup**
-
-2. Enter the `Namespace` and `Output Path`, then click the **Generate scripts** button.
-
-3. The following scripts will be auto-generated at the specified path:
-
-    * An SD root class with the `SaveDesignRoot` attribute
-    * A `SaveDesignConfig` class implementing `ISaveDesignConfig`
+Save Design provides a **dedicated editor tool** to simplify initial setup.
+From script scaffolding to config asset creation, everything can be done in just a few clicks.
 
 ---
 
-#### 🔹 Create the Config Asset
+#### 🔹 Script Auto-Generation
+
+1. In Unity’s menu, select
+   **Tools > Save Design > Setup** to open the **Save Design Setup Window**.
+
+2. Enter your `Namespace`, then click the **Generate scripts** button.
+
+3. The following scripts will be automatically generated in the specified path:
+
+    * An SD root class annotated with `SaveDesignRoot`
+    * A `SaveDesignConfig` class implementing `ISaveDesignConfig` (for configuration)
+
+This prepares the minimum structure required to start using Save Design.
+
+---
+
+#### 🔹 Creating the Config Asset
 
 Next, select
-**Tools > Save Design > Create Save Design Config** from the menu.
+**Tools > Save Design > Create Save Design Config** from the Unity menu.
 
-This will generate a `SaveDesignConfig` asset under the `Assets/Resources` folder.
-With this asset, you can configure various **file-related settings**:
+This creates a `SaveDesignConfig` asset under the `Assets/Resources` folder.
+In this asset, you can configure **file-related settings** such as:
 
 * Save folder name
-* File names for shared and slot data
+* File names for SharedData / SlotData
 * File extension
+* How to handle exceptions during initialization and read/write
 
-Once configuration is done, you can immediately start using Save Design
-just by defining data classes with `[SharedData]`, `[SlotData]`, etc.
+Once configuration is complete, simply define your data classes with `[SharedData]` or `[SlotData]` attributes, and you
+can start using Save Design immediately.
 
-You only need to perform this setup once per project.
-Afterward, you can implement safe and clean save logic using auto-generated APIs with IDE auto-completion.
+This setup step only needs to be done once per project.
+After that, you can safely and simply implement save processing through the auto-generated APIs with IDE autocompletion.
 
 ---
 
-### ⚠️ Remove Unused Samples
+### ⚠️ Remove Unnecessary Samples
 
-Save Design includes simple **sample classes** and **sample scenes** for testing and learning after import.
-However, they are not needed in actual game projects, and if left as-is,
-**they may be included in your production build**.
+Save Design comes with simple **sample classes** and **sample scenes** for quick verification and reference right after
+installation.
 
-To avoid this, keep only the components you need and delete the rest.
+However, these are usually unnecessary for your actual game, and
+**if left as is, they may be included in the final build**.
+
+Delete the `Assets/Plugins/Save Design/Samples` folder to ensure your production environment does not contain unwanted
+data.
 
 ---
 
 ### 🧩 Optional Libraries
 
-#### UniTask (Async Support)
+#### MessagePack for C# (High-speed Serializer)
 
-* If you want async support, install [UniTask](https://github.com/Cysharp/UniTask)
-* Define the `SAVE_DESIGN_SUPPORT_UNITASK` scripting symbol to auto-generate UniTask-based async APIs
+* If you want to use it, install [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp)
+* Supported by adding `[SaveDesignRoot(SerializerType.MessagePack)]` to your root class
 
-#### MessagePack for C# (High-Speed Serializer)
+#### Newtonsoft.Json (Feature-rich JSON Serializer)
 
-* If needed, install [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp)
-* Add `[SaveDesignRoot(SerializerType.MessagePack)]` to the root class
+* If you want to use it, install [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
+* Supported by adding `[SaveDesignRoot(SerializerType.NewtonsoftJson)]` to your root class
+* For saving common Unity types like `Vector3`, it is also recommended to
+  install [Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters)
 
-#### Newtonsoft.Json (feature-rich JSON serializer)
-
-* To use it, install [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json).
-* Enable support by adding `[SaveDesignRoot(SerializerType.NewtonsoftJson)]` to your root class.
-* If you need to serialize common Unity types such as `Vector3`, we also recommend
-  installing [Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters).
-
-> These libraries are **not included** with Save Design.
-> Please install and use them as needed, following their respective licenses.
+> These libraries are **not bundled** with Save Design.
+> Please install them separately as needed and use them in compliance with their licenses.
 
 ---
 
 ## 2.2 Creating Data Definition Classes
 
-In Save Design, you define the data you want to save as classes,
-and categorize them by attaching attributes like `[SharedData]` or `[SlotData]`.
+In Save Design, you define the data to be saved as classes,
+and classify them by attaching attributes such as `[SharedData]` or `[SlotData]`.
 
-This “data definition” step allows Save Design to automatically generate appropriate save APIs.
-
----
-
-### 🔹 Types of Data and Their Usage
-
-| Attribute Name   | Use Case                                                 |
-|------------------|----------------------------------------------------------|
-| `[SharedData]`   | For global settings or progress shared across slots      |
-| `[SlotData]`     | For per-slot saves (character info, items, etc.)         |
-| `[TempData]`     | For session-only values (e.g., temporary flags)          |
-| `[SlotMetaData]` | For metadata shown in save slot UI (timestamp, playtime) |
-
-> For attribute usage details and structure, see section “2. Attributes” in the Script Reference.
+This “data definition” allows Save Design to automatically generate save APIs.
 
 ---
 
-### 🧩 Example: Slot-Based Player Data
+### 🔹 Types of Data and Their Use Cases
+
+| Attribute Name   | Usage Example                                                |
+|------------------|--------------------------------------------------------------|
+| `[SharedData]`   | Player settings or progress shared across all slots          |
+| `[SlotData]`     | Slot-specific save content (character info, inventory, etc.) |
+| `[TempData]`     | Temporary data not saved to file (session flags, etc.)       |
+| `[SlotMetaData]` | Metadata for slot display (save date, playtime, etc.)        |
+
+> For details on attribute usage and structures, see Section 2. Attributes in the Script Reference.
+
+---
+
+### 🧩 Example: Player Data Per Slot
 
 ```csharp
-[SlotData]            // Slot-specific data
-[System.Serializable] // Required for JsonUtility
+[SlotData]            // Slot-specific data is annotated with SlotData
+[System.Serializable] // Required for serialization with JsonUtility
 public class Player
 {
     public int level;
@@ -227,34 +224,33 @@ public class Player
 }
 ```
 
-Once this class is defined, you can read and write the data using the auto-generated API like this:
+By simply defining a class like above, you can save and load it via the auto-generated APIs:
 
 ```csharp
 SD.Load.Slot(slotIndex);          // Load
 
-var level = SD.Slot.Player.level; // Read value
+var level = SD.Slot.Player.level; // Access values
 
-SD.Slot.Player.level++;           // Modify value
+SD.Slot.Player.level++;           // Modify values
 
 SD.Save.Slot(slotIndex);          // Save
 ```
 
-> 💡 **Note: Which fields are saved depends on the serializer used.**
+> 💡 **Note: Which fields are saved depends on the serializer you use**
 >
-> Save Design delegates actual data serialization/deserialization to external libraries such as JsonUtility or
-> MessagePack for C#.
-> Therefore, which fields are included in save/load depends on the behavior of the selected serializer.
+> In Save Design, actual serialization and deserialization are handled by external serializers such as `JsonUtility` or
+`MessagePack for C#`.
+> Therefore, “which fields are saved” follows the rules of the chosen serializer.
 >
-> For example, when using `UnityEngine.JsonUtility`:
+> For example, with `UnityEngine.JsonUtility`:
 >
 > * `public` fields are saved
-> * `private` fields with `[SerializeField]` are saved
-> * Properties and fields marked with `[NonSerialized]` are ignored
+> * `private` fields are saved if marked with `[SerializeField]`
+> * Properties and fields marked with `[NonSerialized]` are not saved
 >
-> When using `MessagePack for C#`, you must use `[MessagePackObject]` and `[Key(n)]`.
+> With `MessagePack for C#`, `[MessagePackObject]` and `[Key(n)]` are required.
 >
-> **Please review the specifications of the serializer you plan to use to ensure all intended data is correctly saved
-and restored.**
+> **Always check the serializer’s specifications to ensure your intended data is correctly saved and restored.**
 
 ---
 
@@ -262,60 +258,60 @@ and restored.**
 
 # 3. Practical Usage Examples
 
-## 3.1 Reading & Writing Shared Data
+## 3.1 Reading and Writing Shared Data
 
-Data marked with `[SharedData]` is treated as “shared data” accessible across all save slots.
-It is suitable for saving data that does not depend on individual slots, such as user settings or overall game progress.
+Data annotated with `[SharedData]` is treated as **shared data** accessible across all save slots.
+This is suitable for saving information that does not depend on individual slots, such as user settings or overall game
+progress.
 
 ---
 
-### ✅ Recommended Timing & Method for Reading
+### ✅ Recommended Timing and Method for Loading
 
-Shared data is generally loaded **once at game startup** and treated as persistent in memory afterward.
-We recommend implementing this loading process in a static initializer function inside the root class, like so:
+Shared data is generally loaded **once at game startup** and treated as resident data thereafter.
+We recommend implementing this loading process using a static initialization function in your root class:
 
 ```csharp
 [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 static void InitSaveDesignConfig()
 {
-    // Load the file-related configuration first
+    // Load configuration settings
     config = Resources.Load<SaveDesignConfig>("SaveDesignConfig");
 
-    // Load shared data, or initialize if no data exists
+    // Load shared data, or initialize if none exists
     if (!Load.Shared()) Initialize.Shared();
 }
 ```
 
-This ensures that **shared data is ready before any scenes load**,
-so that any following logic can safely access `SD.Shared.xxx`.
+This ensures that **shared data is prepared before any scene loads**, so subsequent code can safely access
+`SD.Shared.xxx`.
 
 ---
 
-### 💾 Save Timing and Design Guidelines
+### 💾 Saving Timing and Design Policy
 
-There are two main options for when to save shared data:
+There are two main approaches to saving shared data:
 
-1. Save **immediately after changes** (recommended)
-2. Save **once upon application exit**
+1. **Save immediately after a change occurs (recommended)**
+2. **Save collectively at game exit**
 
-While both are valid, **the first option is preferred for clarity and reliability.**
+The first approach is more reliable because the latest changes will always be preserved, even if the application closes
+unexpectedly.
 
 ---
 
-#### ✅ Option 1: Save Immediately After Value Change (Recommended)
+#### ✅ Approach 1: Save Immediately After Changes (Recommended)
 
 ```csharp
 SD.Shared.settings.volume = newVolume;
 SD.Save.Shared();
 ```
 
-This method is safest, ensuring that **recent changes are preserved** even if the application is terminated
-unexpectedly.
-It's especially suited for data like settings or progress that must persist.
+This guarantees that the most recent change is preserved, making it ideal for settings and progress data.
 
 ---
 
-#### ⚠️ Option 2: Save on Application Exit (Backup Strategy)
+#### ⚠️ Approach 2: Save on Application Exit
 
 ```csharp
 [RuntimeInitializeOnLoadMethod]
@@ -325,339 +321,311 @@ private static void RegisterSaveOnExit()
 }
 ```
 
-This is simpler and good for lightweight projects or infrequently changed settings.
-However, note that `Application.quitting` is only triggered if Unity shuts down normally —
-**it won't run on task manager termination or mobile OS force-closes.**
+This is simple to implement, but only works if Unity triggers a “normal exit.”
+It may not run in cases such as forced termination from the Task Manager or OS process management (e.g., on mobile).
 
 ---
 
-## 3.2 Slot Saves and Auto Save
+## 3.2 Slot Saves and Auto-Saves
 
-Save Design allows you to flexibly manage **slot-based save data**, such as “Slot 1–3” setups using numeric indices.
-In addition to numbers, it also supports saving using **string-based identifiers**.
+Save Design supports **slot-based saving**, where you can specify a numeric index (e.g., Slot 1, Slot 2, Slot 3) to
+manage multiple save files.
+This makes it easy to implement common game systems such as “three save slots” or “multiple character profiles.”
 
-For example, a player might select a save slot from the title screen using a numeric index,
-while automatic checkpoints or auto-saves during gameplay can use identifiers like `"autosave"` or `"checkpoint-3"`.
+In addition to numeric slots, Save Design also allows you to save using **string identifiers**.
+This provides more flexibility for cases where saves don’t fit neatly into a numbered slot system.
+Typical examples include:
 
-However, Save Design **does not save data automatically**.
-This is intentional—to prevent unexpected bugs or hard-to-debug issues caused by saving behind the scenes.
-
-Instead, Save Design follows a clear rule:
-**"Save only when explicitly instructed to."**
-It never performs automatic I/O or saves data without your awareness,
-which ensures that developers retain full control and the game state remains consistent.
-
-This makes it easy to manage when and what data is saved,
-ultimately improving reliability and debuggability.
+* `"autosave"` → For automatic save points
+* `"checkpoint-3"` → For stage or checkpoint-specific saves
 
 ---
 
-## 3.3 Using SlotMetaData + Cautions
+### ✨ Explicit Control, No Hidden Auto-Saving
 
-`SlotMetaData` is designed to store **slot metadata**, which is useful for displaying in slot selection UIs.
-It’s ideal for storing information like the player’s name, playtime, or save timestamp.
+A key design principle of Save Design is that **it never saves automatically behind the scenes**.
+All saves occur only when the developer explicitly calls the API.
 
-If your game doesn’t use a slot system, defining `SlotMetaData` is optional.
+This has several advantages:
 
----
+* You avoid unexpected overwrites caused by hidden auto-saves
+* You always know exactly **when** and **what** was saved
+* It keeps the flow of your game logic transparent and easy to reason about
 
-### ✅ Common Uses of SlotMetaData
-
-* Displaying "player name", "current chapter", or "playtime" on the slot select screen
-* Storing the last saved timestamp
-* Flag to indicate whether a slot is empty
-
-The data is saved automatically alongside the slot when calling `SD.Save.Slot(...)`,
-and loaded via `SD.Load.SlotMeta(...)`.
+As a result, you can implement both **slot-based saves** and **identifier-based saves** in a consistent, predictable
+manner while retaining full control over your game’s save behavior.
 
 ---
 
-### ⚠️ Important: SlotMetaData Is Always Overwritten with a New Instance
+## 3.3 Using and Cautions for SlotMetaData
 
-Unlike `[SharedData]` or `[SlotData]`, SlotMetaData does **not support modifying an existing instance** and saving it.
-Each save must generate a **new instance**, and **all fields must be explicitly assigned** before saving.
+`SlotMetaData` is used for **metadata about save slots**, such as display in slot selection screens.
+Examples: player name, chapter, playtime, last saved timestamp.
 
-Example of what **does not work**:
+If your game does not require slot-based saves, you don’t need to define `SlotMetaData`.
+
+---
+
+### ✅ Usage Examples
+
+* Display player name, chapter, and playtime in slot selection UI
+* Record last save date/time
+* Flag whether a slot is empty
+
+`SlotMetaData` is automatically saved alongside slot data with `SD.Save.Slot(...)`.
+It can be read back with `SD.Load.SlotMeta(...)`.
+
+---
+
+### ⚠️ Important Differences from Other Data Types
+
+Unlike `SharedData` or `SlotData`, `SlotMetaData` **cannot be used in a workflow where you load an instance, modify its
+values, and then save it again**.
+
+For example, the following pattern does **not** work as expected:
 
 ```csharp
-if (SD.Load.SlotMeta(slotIndex, out var meta))
-{
-    meta.value += 100; // ❌ This modification won’t be saved
-}
+// ❌ Incorrect usage — do not modify and save directly
+SD.Load.SlotMeta(slotIndex, out var meta);
+meta.value = 100; 
+SD.Save.Slot(slotIndex); // Will not persist changes correctly
 ```
 
-This design is intentional and encourages developers to **derive metadata values from game data**
-just before saving.
+**This design is based on the principle
+that *metadata should always be automatically generated from the values of other save data*, rather than being edited
+and saved independently.**
 
-Use `IBeforeSaveCallback` to populate fields just in time:
+---
+
+### ✅ Recommended Implementation
+
+The best practice is to generate a fresh instance of `SlotMetaData` every time you save a slot, and populate its fields
+appropriately.
+One reliable approach is to implement `IBeforeSaveCallback` in your slot data class. This allows you to set up
+`SlotMetaData` fields just before saving, based on the current state of your actual save data:
 
 ```csharp
-[SlotMetaData, System.Serializable]
-public class SlotMetaData : IBeforeSaveCallback
+public class MySlotData : IBeforeSaveCallback
 {
-    public string playerName;
-    public int level;
-    public int money;
+    public Player player;
+    public float playTime;
 
-    void IBeforeSaveCallback.OnBeforeSave()
+    public void OnBeforeSave()
     {
-        var player = SD.Slot.Player;
-        playerName = player.name;
-        level = player.level;
-        money = player.money;
+        // Populate SlotMetaData right before saving
+        SD.SlotMeta = new SlotMetaData
+        {
+            playerName = player.name,
+            playTime   = this.playTime,
+            savedAt    = DateTime.Now
+        };
     }
 }
 ```
 
----
-
-## 3.4 Managing Temporary State with TempData
-
-`TempData` is used to handle **temporary values that are not saved to file**.
-It is automatically reset when the game exits or a slot is switched,
-making it ideal for storing session-only flags or volatile data.
-
-Common use cases include:
-
-* Tutorial flags valid only for the current session
-* Temporary inventory or dialogue progress
-* Scores or battle results during a single match
-* Flags for one-time events triggered after loading
-
-To define TempData, just mark a class with `[TempData]`.
-You can also specify a `TempDataResetTiming` to control **when it gets reset**, such as:
-
-* `OnGameStart` (when the game starts)
-* `OnSlotDataLoad` (when switching slots)
-
-This feature helps prevent bugs from uninitialized or leftover temporary states.
-
-The default reset timing is `OnSharedDataLoad`.
+This guarantees that each save operation creates a **fresh and consistent `SlotMetaData` instance** derived from the
+actual slot data, ensuring reliability and avoiding subtle bugs.
 
 ---
 
-## 3.5 Leveraging Initialize Processing
+## 3.4 Managing Temporary States with TempData
 
-When starting a new game or creating a new save slot,
-you can explicitly initialize data using `SD.Initialize.Shared()` or `SD.Initialize.Slot()`.
+`TempData` is for **temporary states not saved to files**.
+It resets automatically when quitting the game or switching slots.
 
-Each of these methods creates a new instance of the data.
+Use cases include:
 
-Use these during:
+* Temporary item acquisition or dialogue progress
+* Battle results or score history
+* One-time flags that reset after reload
 
-* "New Game" flow
-* Creating a new slot from the title screen
-* Developer tests that require a clean state
+You can also control **when it resets** via `TempDataResetTiming` (e.g., on game start or on slot load).
+Default reset timing is `OnSharedDataLoad`.
 
-⚠️ Do not call initialize if data already exists unless intentional, as it will overwrite existing saves.
-
-To perform custom logic after data creation, implement `IAfterInitializeCallback`.
-Its `OnAfterInitialize()` method is called **once immediately after the data is initialized** (not during load).
-
-Good use cases include:
-
-* Setting default values for runtime-only fields
-* Deriving initial state from other data
-* Triggering tutorial setup or setting a starting stage
-
-This separates new-game logic cleanly from general load logic.
-
-> Note: `IAfterInitializeCallback` only applies to `[SharedData]` and `[SlotData]` classes.
-> See section “1.2 IAfterInitializeCallback” in the script reference for details.
+By correctly specifying **`TempDataResetTiming`**, you can prevent common bugs such as *forgetting to reset and
+unintentionally carrying over the previous state.*
+This ensures temporary state management is implemented in a way that is both **safer and cleaner**.
 
 ---
 
-## 3.6 Using Callbacks During Read/Write
+## 3.5 How to Use Initialization
 
-Save Design provides two interfaces for hooking into the save/load process:
+Initialization functions are intended for cases such as **when no save data exists** or when starting a **new game**.
+They explicitly create a new instance of the save data in memory.
 
-* `IAfterLoadCallback`
-* `IBeforeSaveCallback`
+* `SD.Initialize.Shared()` → Creates a fresh shared data instance
+* `SD.Initialize.Slot()` → Creates a fresh slot data instance
 
-These let you define **pre/post-processing logic within each data class**,
-making your code modular and easier to manage.
+These two functions provide the basic means to reset save data at runtime.
 
 ---
 
-### ✅ `IAfterLoadCallback` Usage
+### ⚠️ Important Note
 
-Called automatically after a data class is deserialized from disk.
+When you call an initialization function, the **current in-memory instance** of the data class is discarded and replaced
+with a new one.
+However, **this does not delete the save data file itself**.
+This means you can reinitialize the runtime state without destroying the existing files on disk.
+
+---
+
+### ✅ Custom Logic After Initialization
+
+If you need to run additional setup immediately after initialization, you can implement the `IAfterInitializeCallback`
+interface in your data classes.
+
+For example, this can be used to:
+
+* Set default values for player stats
+* Configure initial states for tutorials
+* Prepare any runtime-only data required right after a new game starts
+
+This makes initialization flexible, ensuring that your save system always starts in a consistent and predictable state.
+
+---
+
+### 📖 Further Reference
+
+> `IAfterInitializeCallback` is only processed for classes marked with either `[SharedData]` or `[SlotData]`.
+>
+> For detailed specifications, please refer to “1.1 IAfterInitializeCallback” in the Script Reference.
+
+---
+
+## 3.6 How to Use Callbacks During Read/Write
+
+Save Design provides two interfaces for hooks around save/load:
+
+* `IAfterLoadCallback` → Called immediately after data is loaded
+* `IBeforeSaveCallback` → Called right before data is saved
+
+These let you separate pre/post-processing per data class.
+
+---
+
+### ✅ Example: `IAfterLoadCallback`
 
 Useful for:
 
-* Reinitializing runtime-only fields
+* Reconstructing runtime-only fields
 * Rebuilding caches or dictionaries
-* Triggering visual/UI updates after load
+* Updating UI or audio after load
 
 ---
 
-### ✅ `IBeforeSaveCallback` Usage
-
-Called just before the data is serialized to disk.
+### ✅ Example: `IBeforeSaveCallback`
 
 Useful for:
 
-* Transforming data into a serializable format
-* Removing circular references
-* Updating timestamps or playtime info
-
-These callbacks help maintain data accuracy and modularity.
+* Converting runtime state into savable form
+* Removing unused data
+* Recording timestamps or playtime before save
 
 ---
 
-### 💡 Why Callbacks Help
+### 💡 Why Callbacks Are Useful
 
-Instead of placing logic directly in the calling code,
-these callbacks **encapsulate logic inside the data class**.
-
-This keeps your save/load function calls clean (e.g., just `SD.Save.Slot(...)`)
-while offloading complex behavior to where it belongs — in the data model.
+* Keep save/load calls **simple and clean**
+* Encapsulate complex pre/post logic inside each data class
 
 ---
 
-### 🔔 Caution When Depending on Other Data
+### ⚠️ Dependency Considerations
 
-In Save Design, each data type (`SharedData`, `SlotData`, `TempData`, etc.) is defined as a separate class.
-By default, **the order in which data is initialized, loaded, or saved is not guaranteed**.
+If one data class depends on another (e.g., `Inventory` referencing `Player`), you need to be careful.
+By default, **the order of callback execution is not guaranteed**, and this can lead to issues such as:
 
-This becomes critical when a callback method (such as `IAfterLoadCallback`, `IBeforeSaveCallback`, or
-`IAfterInitializeCallback`)
-**accesses another data class** during execution.
+* A class attempting to reference another class that hasn’t finished loading yet
+* Inconsistent initialization order causing missing or invalid values
 
----
-
-#### ❌ What Can Go Wrong Without Ordered Execution
-
-For example, let’s say you want to initialize a value in your `GameSettings` (SharedData)
-by referencing a value from `Profile` (SharedData):
+To avoid such problems, you should **explicitly declare dependencies** using attributes, ensuring that related data
+classes are initialized and callbacks are invoked in the correct order.
 
 ```csharp
-[SharedData]
-public class GameSettings : IAfterLoadCallback
-{
-    public int volume;
-
-    public void OnAfterLoad()
-    {
-        volume = SD.Shared.Profile.defaultVolume; // ❌ May throw NullReferenceException
-    }
-}
-```
-
-If `Shared.Profile` hasn't been loaded yet, this code may result in a `NullReferenceException`
-or initialize with an incorrect value.
-
----
-
-### ✅ Save Design’s Solution: Declaring Dependencies
-
-To resolve this, Save Design lets you **declare dependencies explicitly**
-by passing the type of the dependent data to the attribute:
-
-```csharp
-[SharedData(typeof(Profile))]
+[SharedData(typeof(Profile)), Serializable]
 public class GameSettings : IAfterLoadCallback
 {
     ...
 }
 ```
 
-With this declaration, Save Design guarantees that `GameSettings` will be initialized or loaded
-**after** `Profile`, ensuring it is safe to reference.
-
-> ✅ The dependent type must be of the **same data kind** (e.g., `SharedData` can only depend on other `SharedData`)  
-> ✅ In the case of `TempData`, the `ResetTiming` must also match
-
-This mechanism ensures **safe access to other data** inside callbacks
-and helps you build reliable save systems even in projects with complex dependencies.
+> ✅ Dependent classes must also be of the same data type (e.g., SharedData → SharedData)
+>
+> ✅ For `[TempData]`, `TempDataResetTiming` must also match
 
 ---
 
-## 3.7 Async Processing (UniTask / await Support)
+### 🔄 Rollback Support
 
-Save Design can auto-generate **async variants** of its load/save APIs.
-This is ideal when save/load operations take time (e.g., large files or mobile platforms).
+In addition to standard callbacks, Save Design provides **dedicated rollback interfaces** to revert external side
+effects when exceptions occur:
 
-These methods are compatible with `async/await` and execute without blocking the main thread.
+* `IAfterInitializeRollback.OnAfterInitializeRollback`
+* `IAfterLoadRollback.OnAfterLoadRollback`
+* `IBeforeSaveRollback.OnBeforeSaveRollback`
 
----
+These rollback methods are always invoked in the **reverse order (LIFO) of the original callbacks**, so that resources
+are released safely and in the opposite order they were acquired.
 
-### ✅ Using Async Namespaces
+* **Initialization and Load:**
+  After rolling back side effects, data classes are reverted to their previous instances, restoring them to a known-good
+  state.
 
-Async APIs live under `.Async`, e.g., `SD.Load.Async.Shared()`.
-
-Example:
-
-```csharp
-if (await SD.Load.Async.Shared())
-{
-    // Data loaded successfully
-}
-```
-
-This keeps the UI responsive and avoids frame hitches during I/O operations.
+* **Save:**
+  Since save operations do not create new instances, the data itself remains unchanged, and only side effects are rolled
+  back.
 
 ---
 
-### ⚠️ Warning: Unity APIs Not Allowed During Async
+### ⚠️ Important Notes on Rollback
 
-Async operations are run **on a background thread**.
-Therefore, you must not use Unity-specific APIs (e.g., `Instantiate`, `Find`) inside:
-
-* Constructors
-* Field initializers
-* `OnAfterLoad()`
-* `OnBeforeSave()`
-
-Split Unity-related code into separate logic on the main thread if needed.
+* Rollback is performed on a **best-effort basis**; not all side effects can be guaranteed to revert completely.
+* Rollback implementations should be **idempotent and exception-safe**—throwing exceptions inside rollback can make
+  recovery unstable.
+* If no side effects are present, you don’t need to implement rollback interfaces; normal behavior remains unchanged.
 
 ---
 
 <div class="page-break"></div>
 
-# 4. Common Use-Cases
+# 4. Common Use Cases
 
-## 4.1 How to Handle Data Structure Changes
+## 4.1 How to Handle Changes in Data Structures
 
-As your game development progresses, it's common to **add or remove fields** from save-target data classes.
-Before release, such changes pose no problem. However, for a game already released to users, extra caution is necessary.
+As game development progresses, it is common to **add or remove fields** in save data classes.
+Before release, such changes don’t cause issues, but after release you must take care to maintain compatibility.
 
-When using `JsonUtility` or `MessagePack`, **any fields missing from the save file will be filled with default values**
-during loading.
-Conversely, if older save files contain now-unused fields, they will simply be ignored.
+* With `JsonUtility` or `MessagePack`, **missing fields in loaded save data are filled with default values**.
+* Likewise, extra fields from older versions are ignored when loading.
 
-If you need to make more complex changes — such as renaming fields or changing data types — consider the following
-strategies:
+For more complex changes (renaming fields, changing types, etc.), we recommend strategies like:
 
-* Add a `Version` field to your data, and branch your logic based on version during load
-* Use `IAfterLoadCallback` to transform older structures into the new format
-* In some cases, discard the old data entirely and regenerate a new structure via `Initialize`
+* Adding a `Version` field and branching logic after loading
+* Using `IAfterLoadCallback` to convert old structures into the new format
+* Discarding old data and regenerating it using `Initialize`
 
-Save Design allows you to implement these custom strategies freely.
-It’s important to ensure your save system **can evolve safely** as your project grows.
+This ensures save data remains stable even when your data model evolves.
 
----
-
-### 🔁 Example: Changing Field Types with Version Migration
+The following is an example of changing the type of some fields.
 
 ```csharp
 [SlotData, Serializable]
 public class ExampleData : IAfterLoadCallback
 {
-    public int version;    // Version number of the save data
-    public int oldField;   // Keep this to read old data; don't remove it yet
-    public float newField; // New version using float
+    public int version;    // Save data version
+    public int oldField;   // Must remain unchanged to prevent data loading failures if the old field is renamed or deleted
+    public float newField; // New field with changed type
 
     void IAfterLoadCallback.OnAfterLoad()
     {
-        // Migration logic for version 0
+        // Migration processing when loading old data
         if (version == 0)
         {
             newField = (float)oldField;
             version = 1;
         }
-
-        // Further version upgrades if necessary
+        
+        // Further version change handling
         if (version == 1)
         {
             ...
@@ -668,54 +636,96 @@ public class ExampleData : IAfterLoadCallback
 
 ---
 
-## 4.2 How to Check Errors During Read/Write
+## 4.2 Handling Exceptions with ExceptionPolicy
 
-By default, Save Design is built on the principle of **not throwing exceptions**.
-If an operation fails (e.g., due to corrupted data or I/O error), the method simply returns `false`.
+When an exception occurs during **initialization**, **load**, or **save**, Save Design handles it according to the
+configured `ExceptionPolicy`.
 
-This approach ensures the game won't crash, even if something goes wrong during save/load,
-which is especially useful in production environments.
+### Available Policies
 
-If you'd like to track and handle these errors, implement the generated partial method
-`OnGameDataError(System.Exception e)` in your root class.
+* **`Throw`**  
+  Rethrows the exception as-is. Choose this when you want the caller to `try/catch` and control error handling
+  explicitly (e.g., during development or for critical operations).
+
+* **`LogAndSuppress`**  
+  Logs the exception via `UnityEngine.Debug.LogException` and then suppresses it.
+  This most closely mirrors the previous `OnGameDataError` behavior.
+
+* **`Suppress`**  
+  Silently swallows the exception with no log output.
+  Use in cases where you do not want to surface errors to the user.
+
+### Default Behavior
+
+By default, initialization and read/write functions follow the `ExceptionPolicy` provided by **`ISaveDesignConfig`**.
+Setting it once applies a consistent policy across your project.
+
+### Handling Special Cases
+
+Each function also provides an **overload that accepts `ExceptionPolicy`** as a parameter, allowing you to override the
+default per call when needed. For example:
 
 ```csharp
-[SaveDesignRoot]
-internal partial class SD
-{
-    static partial void OnGameDataError(Exception e)
-    {
-        Debug.LogException(e);
-    }
-}
+// Force throwing just for this call
+SD.Load.Shared(ExceptionPolicy.Throw);
+
+// Log & suppress only for this save
+SD.Save.Slot(slotIndex, ExceptionPolicy.LogAndSuppress);
 ```
+
+### Behavior Common to All Policies
+
+* Regardless of which policy you choose, Save Design performs **best-effort rollback** after an exception.
+* **Initialization / Load:** Roll back side effects in reverse order (LIFO), then revert data classes to their previous
+  instances (restore to a known-good state).
+* **Save:** Since saving does not create new data instances, only **side effects are rolled back**; the data itself
+  remains as-is.
+* Rollback cannot be guaranteed to fully restore every external side effect. Implement rollback to be **idempotent** and
+  avoid throwing further exceptions.
+
+### Migration Guide
+
+The previous mechanism **`partial void OnGameError(Exception ex)`** has been removed.
+To emulate similar behavior, set `ExceptionPolicy.LogAndSuppress`.
+Choose `Suppress` or `Throw` where appropriate, and **test your exception paths** to verify the resulting UX and logs.
 
 ---
 
 ## 4.3 Initializing Only Part of the Data
 
-Normally, calling `Initialize` will **fully reset** all data of the specified type.
-But in some situations, you may want to **initialize just a subset of the data** manually.
+`Initialize` will initialize all data of the specified type.
 
-Although this is a bit unconventional, the following approach works:
+If you only want to initialize some data, you can use the following method:
 
 ```csharp
 [SharedData("Settings"), Serializable]
 public class Audio : IAfterInitializeCallback
 {
-    public float volume;
+    public event System.Action<float> OnVolumeChanged;
+    [SerializedField] float volume;
 
-    public void OnAfterInitialize()
+    public void SetVolume(float volume)
     {
-        volume = 1f;
+        this.volume = volume;
+        OnVolumeChanged?.Invoke(volume);
+    }
+
+    public void Initialize()
+    {
+        SetVolume(1f);
+    }
+
+    void IAfterInitializeCallback.OnAfterInitialize()
+    {
+        Initialize();
     }
 }
 
-// Manually invoke the initialization callback
-SD.Shared.Settings.Audio.OnAfterInitialize();
+SD.Shared.Settings.Audio.Initialize();
 ```
 
-This lets you manually reset values without wiping the entire data class.
+By encapsulating reset logic within the data class itself, you also keep consistency across your project and make it
+easier to maintain.
 
 ---
 
@@ -723,35 +733,48 @@ This lets you manually reset values without wiping the entire data class.
 
 # 5. Security and Encryption (Optional)
 
-## 5.1 Enabling Encryption (Editor Tool)
+## 5.1 How to Enable Encryption (Editor Tool)
 
-Save Design provides a built-in editor tool that lets you configure encryption directly within the Unity Editor.
-
-Follow these steps to enable encryption:
-
-1. From the Unity top menu bar, go to
-   **Tools > Save Design > Encrypt Settings**
-
-2. In the opened window, enter your AES key (32 characters) and HMAC key (32 characters).
-   ※ We strongly recommend using secure, random strings for both.
-
-3. Click the **\[Generate Encryptor.cs]** button.
-   This will automatically generate a script named `Encryptor.cs`.
-
-This script hooks into Save Design’s runtime processing and enables the following:
-
-* **All saved data is encrypted** after this point
-* **HMAC-based tamper detection** is automatically performed during load
+Save Design provides a dedicated **editor extension** that makes it very easy to add encryption functionality to your
+save system.
+You don’t need to write encryption code yourself—just follow the setup steps below in the Unity Editor.
 
 ---
 
-## 5.2 Implementing Custom Encryption Logic
+### 🔹 Steps to Enable Encryption
 
-If you need more advanced control — such as integrating a different encryption scheme —
-Save Design also supports **custom encryption logic**.
+1. From the Unity menu bar,
+   open **Tools > Save Design > Encrypt Settings**.
 
-You can incorporate your own processing by simply implementing the `Encrypt` and `Decrypt` functions in a class with the
-`Encryptor` attribute.
+2. In the displayed window, enter an AES key (32 characters) and an HMAC key (32 characters).
+   ※ Secure random strings are recommended for both.
+
+3. Click the \[**Generate Encryptor.cs**] button to automatically generate an encryption script named `Encryptor.cs`.
+
+This process only takes a few clicks, and once enabled, all subsequent save/load operations will transparently use
+encryption.
+
+---
+
+### 🔒 What Is Actually Integrated
+
+The encryption functionality added through this editor tool uses:
+
+* **AES (Advanced Encryption Standard)** → to protect confidentiality of the save data
+* **HMAC (Hash-based Message Authentication Code)** → to verify data integrity and detect tampering
+
+Together, AES + HMAC ensures that save files are both **confidential** and **protected from unauthorized modification**.
+This makes it far more difficult for players or third parties to directly edit or tamper with save files.
+
+---
+
+## 5.2 How to Implement Custom Encryption
+
+For finer control or when using specialized encryption methods, Save Design also allows you to replace the encryption
+logic with your own implementation.
+
+Simply implement the `Encrypt` and `Decrypt` functions in a class with the `Encryptor` attribute to incorporate custom
+processing.
 
 ```csharp
 using SaveDesign.Runtime;
@@ -771,38 +794,9 @@ public static class CustomEncryptor
 }
 ```
 
-These hooks are called:
+These methods are hook points called **before saving and after loading**, respectively.
 
-* **Immediately before saving**, and
-* **Immediately after loading**
-
-This gives you full control over the `data` byte array,
-so you can adapt Save Design to your desired security policy.
-
-Example use cases:
-
-* Integrate special encryption used in proprietary or enterprise titles
-* Use randomized IVs or salt values to strengthen encryption per save
-* Apply HMAC validation across multiple files
-
-Save Design provides both **a simple encryption solution** and **the flexibility to support advanced scenarios**.
-
-We recommend using encryption if the integrity and confidentiality of saved data is important in your game.
-
----
-
-## ⚠️ Warning: Apply Encryption Before Public Release
-
-Encrypted data cannot be read without the encryption logic.
-
-Likewise, encrypted save files will fail to load unless decryption logic is present.
-
-This means:
-**If you release your game without encryption, and add encryption later, older save files will be unreadable.**
-Or vice versa.
-
-To avoid this, always apply encryption **before** your game's public release,
-and **do not change the encryption logic** after shipping.
+By applying any encryption or decryption processing to `data` here, you can accommodate custom security policies.
 
 ---
 
@@ -819,8 +813,7 @@ These are distributed under the MIT license.
 
 | Library                                                                        | License | Purpose                                     |
 |--------------------------------------------------------------------------------|---------|---------------------------------------------|
-| [UniTask](https://github.com/Cysharp/UniTask)                                  | MIT     | Enables async operations (Async API)        |
-| [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT     | High-speed binary serializer (optional)     |
+| [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT     | High-speed binary serializer                |
 | [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)                  | MIT     | High-performance JSON serializer (optional) |
 
 These libraries are **not included** in Save Design by default.
