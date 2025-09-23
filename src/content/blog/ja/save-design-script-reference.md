@@ -965,6 +965,7 @@ internal parital class SD { }
 | `JsonUtility`    | Unity 標準の JSON ライブラリ。             |
 | `MessagePack`    | MessagePack for C# \[MIT License] |
 | `NewtonsoftJson` | Newtonsoft.Json \[MIT License]    |
+| `MemoryPack`     | MemoryPack \[MIT License]         |
 
 ---
 
@@ -1407,6 +1408,7 @@ SD.Temp.ExampleClass.value = 10;
 
 - [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) — MIT License
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) — MIT License
+- [MemoryPack](https://github.com/Cysharp/MemoryPack) — MIT License
 
 これらのライブラリは**パッケージに含まれていません**。
 ライセンスの詳細については、 `Third-Party Notices.txt` を参照してください。

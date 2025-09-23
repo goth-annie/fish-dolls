@@ -184,6 +184,11 @@ data.
 * For saving common Unity types like `Vector3`, it is also recommended to
   install [Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters)
 
+#### MemoryPack (High-speed Serializer)
+
+* If you want to use it, install [MemoryPack](https://github.com/Cysharp/MemoryPack)
+* Supported by adding `[SaveDesignRoot(SerializerType.MemoryPack)]` to your root class
+
 > These libraries are **not bundled** with Save Design.
 > Please install them separately as needed and use them in compliance with their licenses.
 
@@ -815,6 +820,7 @@ These are distributed under the MIT license.
 |--------------------------------------------------------------------------------|---------|---------------------------------------------|
 | [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT     | High-speed binary serializer                |
 | [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)                  | MIT     | High-performance JSON serializer (optional) |
+| [MemoryPack](https://github.com/Cysharp/MemoryPack)                            | MIT     | High-speed binary serializer                |
 
 These libraries are **not included** in Save Design by default.
 They are **optional**, and users must manually install and manage them.

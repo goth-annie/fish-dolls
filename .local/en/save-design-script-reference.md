@@ -975,6 +975,7 @@ internal parital class SD { }
 | `JsonUtility`    | Unity standard JSON library.      |
 | `MessagePack`    | MessagePack for C# \[MIT License] |
 | `NewtonsoftJson` | Newtonsoft.Json \[MIT License]    |
+| `MemoryPack`     | MemoryPack \[MIT License]         |
 
 ---
 
@@ -1425,6 +1426,7 @@ This package may generate code that references the following libraries:
 
 - [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) — MIT License
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) — MIT License
+- [MemoryPack](https://github.com/Cysharp/MemoryPack) — MIT License
 
 These libraries are **not included** in the package.  
 For license details, see `Third-Party Notices.txt`.

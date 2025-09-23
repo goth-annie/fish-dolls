@@ -183,6 +183,11 @@ Save Design には、導入直後の動作確認や使い方の参考として�
   などの一般的なUnity型を保存する場合は、[Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters)
   の導入もおすすめします
 
+#### MemoryPack（高速シリアライザ）
+
+* 使用したい場合は、[MemoryPack](https://github.com/Cysharp/MemoryPack) を導入してください
+* ルートクラスに `[SaveDesignRoot(SerializerType.MemoryPack)]` を付けることで対応可能です
+
 > これらのライブラリは Save Design に**同梱されていません**。
 > 必要に応じて各自導入し、ライセンスに従って使用してください。
 
@@ -846,6 +851,7 @@ Save Design は、下記のサードパーティ製ライブラリを利用可�
 |--------------------------------------------------------------------------------|-------|-------------------------|
 | [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT   | 高速バイナリシリアライザー（任意使用）     |
 | [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)                  | MIT   | 高機能な JSON シリアライザー（任意使用） |
+| [MemoryPack](https://github.com/Cysharp/MemoryPack)                            | MIT   | 高速バイナリシリアライザー（任意使用）     |
 
 これらのライブラリは Save Design に同梱されておらず、**オプション機能として利用者が導入・管理する必要があります**。
 そのため、**ビルドに含めるかどうかは開発者の判断に委ねられます**。

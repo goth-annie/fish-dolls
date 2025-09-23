@@ -9,10 +9,10 @@ heroImage: '/fish-dolls/images/save-design.png'
 
 1. [はじめに](#1-はじめに)  
    1.1 [購入のお礼とスクリプトリファレンスの案内](#11-購入のお礼とスクリプトリファレンスの案内)  
-   1.2 [Save Design とは（特徴と仕組みの概要）](#12-save-design-とは（特徴と仕組みの概要）)
+   1.2 [Save Design とは（特徴と仕組みの概要）](#12-save-design-とは特徴と仕組みの概要)
 
 2. [最小限の導入ステップ](#2-最小限の導入ステップ)  
-   2.1 [必要な準備（Unityバージョン／インストール）](#21-必要な準備（unityバージョン／インストール）)  
+   2.1 [必要な準備（Unityバージョン／インストール）](#21-必要な準備unityバージョンインストール)  
    2.2 [データ定義クラスの作成](#22-データ定義クラスの作成)
 
 3. [実用的な使い方例](#3-実用的な使い方例)  
@@ -28,8 +28,8 @@ heroImage: '/fish-dolls/images/save-design.png'
    4.2 [ExceptionPolicy による例外の扱い方](#42-exceptionpolicy-による例外の扱い方)  
    4.3 [一部のデータだけを初期化したい](#43-一部のデータだけを初期化したい)
 
-5. [セキュリティと暗号化（オプション）](#5-セキュリティと暗号化（オプション）)  
-   5.1 [暗号化を有効にする方法（エディタツール）](#51-暗号化を有効にする方法（エディタツール）)  
+5. [セキュリティと暗号化（オプション）](#5-セキュリティと暗号化オプション)  
+   5.1 [暗号化を有効にする方法（エディタツール）](#51-暗号化を有効にする方法エディタツール)  
    5.2 [独自暗号化処理の組み込み方法](#52-独自暗号化処理の組み込み方法)
 
 ---
@@ -182,6 +182,11 @@ Save Design には、導入直後の動作確認や使い方の参考として�
 * `Vector3`
   などの一般的なUnity型を保存する場合は、[Newtonsoft.Json-for-Unity.Converters](https://github.com/applejag/Newtonsoft.Json-for-Unity.Converters)
   の導入もおすすめします
+
+#### MemoryPack（高速シリアライザ）
+
+* 使用したい場合は、[MemoryPack](https://github.com/Cysharp/MemoryPack) を導入してください
+* ルートクラスに `[SaveDesignRoot(SerializerType.MemoryPack)]` を付けることで対応可能です
 
 > これらのライブラリは Save Design に**同梱されていません**。
 > 必要に応じて各自導入し、ライセンスに従って使用してください。
@@ -687,14 +692,14 @@ Save Design では、**初期化処理や読み書き処理中に例外が発生
 
 ### 選択できるポリシー
 
-* **Throw**
+* **Throw**  
   発生した例外をそのままスローします。呼び出し元で `try-catch` を行い、例外処理を細かく制御したい場合に利用します。
 
-* **LogAndSuppress**
+* **LogAndSuppress**  
   発生した例外を `UnityEngine.Debug.LogException` でログ出力した上で握りつぶします。  
   以前の `OnGameDataError` に近い挙動を再現でき、既存プロジェクトからの移行に適しています。
 
-* **Suppress**
+* **Suppress**  
   発生した例外を握りつぶします。ログも出力されないため、ユーザーにエラーを見せたくない場合や、失敗を静かに無視したい場合に利用します。
 
 ### デフォルトの挙動
@@ -846,6 +851,7 @@ Save Design は、下記のサードパーティ製ライブラリを利用可�
 |--------------------------------------------------------------------------------|-------|-------------------------|
 | [MessagePack for C#](https://github.com/MessagePack-CSharp/MessagePack-CSharp) | MIT   | 高速バイナリシリアライザー（任意使用）     |
 | [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)                  | MIT   | 高機能な JSON シリアライザー（任意使用） |
+| [MemoryPack](https://github.com/Cysharp/MemoryPack)                            | MIT   | 高速バイナリシリアライザー（任意使用）     |
 
 これらのライブラリは Save Design に同梱されておらず、**オプション機能として利用者が導入・管理する必要があります**。
 そのため、**ビルドに含めるかどうかは開発者の判断に委ねられます**。
