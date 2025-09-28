@@ -26,7 +26,8 @@ heroImage: '/fish-dolls/images/save-design.png'
 4. [Common Use Cases](#4-common-use-cases)  
    4.1 [How to Handle Data Structure Changes](#41-how-to-handle-changes-in-data-structures)  
    4.2 [How to Check Errors During Read/Write](#42-handling-exceptions-with-exceptionpolicy)  
-   4.3 [How to Initialize Only Part of the Data](#43-initializing-only-part-of-the-data)
+   4.3 [How to Initialize Only Part of the Data](#43-initializing-only-part-of-the-data)  
+   4.3 [Event subscriptions are discarded when switching data](#44-event-subscriptions-are-discarded-when-switching-data)
 
 5. [Security and Encryption (Optional)](#5-security-and-encryption-optional)  
    5.1 [How to Enable Encryption (Editor Tool)](#51-how-to-enable-encryption-editor-tool)  
@@ -734,6 +735,40 @@ easier to maintain.
 
 ---
 
+## 4.4 Event subscriptions are discarded when switching data
+
+When initialization or loading is performed, the data class instance is replaced with a new one, causing event
+subscriptions and similar references to be discarded.
+
+By applying the `[Keep]` attribute, the values of events and fields can be preserved even when the data is replaced.
+
+```csharp
+[SlotData, Serializable]
+public class Example : IAfterLoadCallback
+{
+    [Keep] public event System.Action<int> OnValueChanged;
+
+    [SerializedField] int value;
+
+    public int Value
+    {
+        get => value;
+        set
+        {
+            this.value = value;
+            OnValueChanged?.Invoke(value);
+        }
+    }
+
+    void IAfterLoadCallback.OnAfterLoad()
+    {
+        OnValueChanged?.Invoke(value);
+    }
+}
+```
+
+---
+
 <div class="page-break"></div>
 
 # 5. Security and Encryption (Optional)
@@ -839,3 +874,12 @@ This asset “Save Design” is distributed under the standard
 
 For details, please refer to the
 [Unity Asset Store End User License Agreement](https://unity.com/legal/as-terms).
+
+---
+
+## When in doubt
+
+If you have questions while using Save Design or are unsure about the best way to implement something, feel free to ask
+on the Discord server. You can also report bugs there.
+
+The included `Support Server.md` file contains the invitation URL.

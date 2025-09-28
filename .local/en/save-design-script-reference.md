@@ -20,11 +20,12 @@ heroImage: '/fish-dolls/images/save-design.png'
 
 2. [Attributes](#2-attributes)  
    2.1 [EncryptorAttribute](#21-encryptorattribute)  
-   2.2 [SaveDesignRootAttribute](#22-savedesignrootattribute)  
-   2.3 [SharedDataAttribute](#23-shareddataattribute)  
-   2.4 [SlotDataAttribute](#24-slotdataattribute)  
-   2.5 [SlotMetaDataAttribute](#25-slotmetadataattribute)  
-   2.6 [TempDataAttribute](#26-tempdataattribute)
+   2.2 [KeepAttribute](#22-keepattribute)  
+   2.3 [SaveDesignRootAttribute](#23-savedesignrootattribute)  
+   2.4 [SharedDataAttribute](#24-shareddataattribute)  
+   2.5 [SlotDataAttribute](#25-slotdataattribute)  
+   2.6 [SlotMetaDataAttribute](#26-slotmetadataattribute)  
+   2.7 [TempDataAttribute](#27-tempdataattribute)
 
 3. [Enumerations](#3-enumerations)  
    3.1 [ExceptionPolicy](#31-exceptionpolicy)  
@@ -460,7 +461,49 @@ public static class CustomEncryptor
 
 ---
 
-### 2.2 SaveDesignRootAttribute
+### 2.2 KeepAttribute
+
+#### Description
+
+Ensures that events and field values with this attribute are preserved and not discarded even when the data class
+instance is replaced during data initialization or read operations.
+
+The primary use case is to prevent event subscriptions, which are invoked when a value changes, from being discarded.
+
+```csharp
+[SlotData, Serializable]
+public partial class Example : IAfterLoadCallback
+{
+    [Keep] public event System.Action<int> OnValueChanged;
+    
+    [SerializeField] int value;
+    
+    public int Value
+    {
+        get => value;
+        set
+        {
+            this.value = value;
+            OnValueChanged?.Invoke(value);
+        }
+    }
+    
+    void IAfterLoadCallback.OnAfterLoad()
+    {
+        OnValueChanged?.Invoke(value);
+    }
+}
+```
+
+---
+
+#### Constructors
+
+* public **KeepAttribute** ();
+
+---
+
+### 2.3 SaveDesignRootAttribute
 
 #### Description
 
@@ -506,7 +549,7 @@ See the [SerializerType](#31-serializertype) section for details.
 
 ---
 
-### 2.3 SharedDataAttribute
+### 2.4 SharedDataAttribute
 
 #### Description
 
@@ -615,7 +658,7 @@ public class C { }
 
 ---
 
-### 2.4 SlotDataAttribute
+### 2.5 SlotDataAttribute
 
 #### Description
 
@@ -725,7 +768,7 @@ public class C { }
 
 ---
 
-### 2.5 SlotMetaDataAttribute
+### 2.6 SlotMetaDataAttribute
 
 #### Description
 
@@ -777,7 +820,7 @@ SD.Save.Slot(0);
 
 ---
 
-### 2.6 TempDataAttribute
+### 2.7 TempDataAttribute
 
 #### Description
 

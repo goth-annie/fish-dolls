@@ -20,11 +20,12 @@ heroImage: '/fish-dolls/images/save-design.png'
 
 2. [属性](#2-属性)  
    2.1 [EncryptorAttribute](#21-encryptorattribute)  
-   2.2 [SaveDesignRootAttribute](#22-savedesignrootattribute)  
-   2.3 [SharedDataAttribute](#23-shareddataattribute)  
-   2.4 [SlotDataAttribute](#24-slotdataattribute)  
-   2.5 [SlotMetaDataAttribute](#25-slotmetadataattribute)  
-   2.6 [TempDataAttribute](#26-tempdataattribute)
+   2.2 [KeepAttribute](#22-keepattribute)  
+   2.3 [SaveDesignRootAttribute](#23-savedesignrootattribute)  
+   2.4 [SharedDataAttribute](#24-shareddataattribute)  
+   2.5 [SlotDataAttribute](#25-slotdataattribute)  
+   2.6 [SlotMetaDataAttribute](#26-slotmetadataattribute)  
+   2.7 [TempDataAttribute](#27-tempdataattribute)
 
 3. [列挙型](#3-列挙型)  
    3.1 [ExceptionPolicy](#31-exceptionpolicy)  
@@ -456,7 +457,48 @@ public static class CustomEncryptor
 
 ---
 
-### 2.2 SaveDesignRootAttribute
+### 2.2 KeepAttribute
+
+#### 説明
+
+データの初期化と読み込みでデータクラスのインスタンスが切り替わっても、付与したイベントとフィールドの値が破棄されないよう維持する。
+
+主な用途としては、値が変更されたときに呼ぶイベントの購読が破棄されないようにする。
+
+```csharp
+[SlotData, Serializable]
+public partial class Example : IAfterLoadCallback
+{
+    [Keep] public event System.Action<int> OnValueChanged;
+    
+    [SerializeField] int value;
+    
+    public int Value
+    {
+        get => value;
+        set
+        {
+            this.value = value;
+            OnValueChanged?.Invoke(value);
+        }
+    }
+    
+    void IAfterLoadCallback.OnAfterLoad()
+    {
+        OnValueChanged?.Invoke(value);
+    }
+}
+```
+
+---
+
+#### コンストラクタ
+
+* public **KeepAttribute** ();
+
+---
+
+### 2.3 SaveDesignRootAttribute
 
 #### 説明
 
@@ -501,7 +543,7 @@ ExampleClass.Load
 
 ---
 
-### 2.3 SharedDataAttribute
+### 2.4 SharedDataAttribute
 
 #### 説明
 
@@ -610,7 +652,7 @@ public class C { }
 
 ---
 
-### 2.4 SlotDataAttribute
+### 2.5 SlotDataAttribute
 
 #### 説明
 
@@ -719,7 +761,7 @@ public class C { }
 
 ---
 
-### 2.5 SlotMetaDataAttribute
+### 2.6 SlotMetaDataAttribute
 
 #### 説明
 
@@ -770,7 +812,7 @@ if (SD.Load.SlotMeta(slotIndex, out var meta))
 
 ---
 
-### 2.6 TempDataAttribute
+### 2.7 TempDataAttribute
 
 #### 説明
 

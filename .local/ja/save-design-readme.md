@@ -9,10 +9,10 @@ heroImage: '/fish-dolls/images/save-design.png'
 
 1. [はじめに](#1-はじめに)  
    1.1 [購入のお礼とスクリプトリファレンスの案内](#11-購入のお礼とスクリプトリファレンスの案内)  
-   1.2 [Save Design とは（特徴と仕組みの概要）](#12-save-design-とは特徴と仕組みの概要)
+   1.2 [Save Design とは（特徴と仕組みの概要）](#12-save-design-とは（特徴と仕組みの概要）)
 
 2. [最小限の導入ステップ](#2-最小限の導入ステップ)  
-   2.1 [必要な準備（Unityバージョン／インストール）](#21-必要な準備unityバージョンインストール)  
+   2.1 [必要な準備（Unityバージョン／インストール）](#21-必要な準備（unityバージョン／インストール）)  
    2.2 [データ定義クラスの作成](#22-データ定義クラスの作成)
 
 3. [実用的な使い方例](#3-実用的な使い方例)  
@@ -26,10 +26,11 @@ heroImage: '/fish-dolls/images/save-design.png'
 4. [よくあるユースケース](#4-よくあるユースケース)  
    4.1 [データ構造の変更にどう対応するか](#41-データ構造の変更にどう対応するか)  
    4.2 [ExceptionPolicy による例外の扱い方](#42-exceptionpolicy-による例外の扱い方)  
-   4.3 [一部のデータだけを初期化したい](#43-一部のデータだけを初期化したい)
+   4.3 [一部のデータだけを初期化したい](#43-一部のデータだけを初期化したい)  
+   4.4 [データの切り替え時にイベントの購読が破棄される](#44-データの切り替え時にイベントの購読が破棄される)
 
-5. [セキュリティと暗号化（オプション）](#5-セキュリティと暗号化オプション)  
-   5.1 [暗号化を有効にする方法（エディタツール）](#51-暗号化を有効にする方法エディタツール)  
+5. [セキュリティと暗号化（オプション）](#5-セキュリティと暗号化（オプション）)  
+   5.1 [暗号化を有効にする方法（エディタツール）](#51-暗号化を有効にする方法（エディタツール）)  
    5.2 [独自暗号化処理の組み込み方法](#52-独自暗号化処理の組み込み方法)
 
 ---
@@ -764,6 +765,39 @@ SD.Shared.Settings.Audio.Initialize();
 
 ---
 
+## 4.4 データの切り替え時にイベントの購読が破棄される
+
+初期化や読み込みを行うとデータクラスのインスタンスが新しいものに切り替わるため、イベントの購読なども破棄されてしまいます。
+
+`[Keep]` 属性を付与することでイベントやフィールドの値を、データが切り替わっても維持する事ができます。
+
+```csharp
+[SlotData, Serializable]
+public class Example : IAfterLoadCallback
+{
+    [Keep] public event System.Action<int> OnValueChanged;
+
+    [SerializedField] int value;
+
+    public int Value
+    {
+        get => value;
+        set
+        {
+            this.value = value;
+            OnValueChanged?.Invoke(value);
+        }
+    }
+
+    void IAfterLoadCallback.OnAfterLoad()
+    {
+        OnValueChanged?.Invoke(value);
+    }
+}
+```
+
+---
+
 <div class="page-break"></div>
 
 # 5. セキュリティと暗号化（オプション）
@@ -864,3 +898,11 @@ Save Design は、下記のサードパーティ製ライブラリを利用可�
 
 本アセット「Save Design」自体のコード・構成物はすべて商用利用可能な **Unity Asset Store EULA** に基づいて提供されています。
 詳細は [Unity Asset Store エンドユーザーライセンス](https://unity.com/legal/as-terms) をご参照ください。
+
+---
+
+## 困ったら
+
+Save Design を使っていてわからないことがあったり、最適な実装方法に悩むことがあれば Discord サーバーにて気軽に質問できます。バグの報告も可能です。
+
+付属の `Support Server.md` ファイルに招待 URL が記載されています。
