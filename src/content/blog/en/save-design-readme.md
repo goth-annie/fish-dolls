@@ -41,10 +41,13 @@ heroImage: '/fish-dolls/images/save-design.png'
 
 ## 1.1 Thank You for Your Purchase & Script Reference Guide
 
-Thank you very much for purchasing **Save Design**.
+Thank you very much for purchasing **Save Design**.  
 We hope this asset makes the implementation and maintenance of save features in your project more comfortable.
 
-This document explains the **basic usage of Save Design** and the setup flow.
+If you enjoyed using this asset, we would greatly appreciate it if you could leave a review.  
+Your feedback and support truly help us improve and continue developing better updates in the future.
+
+This document explains the **basic usage of Save Design** and the setup flow.  
 For more technical information such as detailed API specifications, attribute usage, and interface definitions, please
 also refer to the separate **Script Reference**.
 

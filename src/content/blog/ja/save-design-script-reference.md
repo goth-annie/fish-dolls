@@ -5,1446 +5,822 @@ pubDate: '2025-05-25'
 heroImage: '/fish-dolls/images/save-design.png'
 ---
 
-# Save Design スクリプトリファレンス
+# Save Design - スクリプトリファレンス
 
 ## 目次
 
-1. [インターフェース](#1-インターフェース)  
-   1.1 [IAfterInitializeCallback](#11-iafterinitializecallback)  
-   1.2 [IAfterInitializeRollback](#12-iafterinitializerollbackt)  
-   1.3 [IAfterLoadCallback](#13-iafterloadcallback)  
-   1.4 [IAfterLoadRollback](#14-iafterloadrollbackt)  
-   1.5 [IBeforeSaveCallback](#15-ibeforesavecallback)  
-   1.6 [IBeforeSaveRollback](#16-ibeforesaverollback)  
-   1.7 [ISaveDesignConfig](#17-isavedesignconfig)
-
-2. [属性](#2-属性)  
-   2.1 [EncryptorAttribute](#21-encryptorattribute)  
-   2.2 [KeepAttribute](#22-keepattribute)  
-   2.3 [SaveDesignRootAttribute](#23-savedesignrootattribute)  
-   2.4 [SharedDataAttribute](#24-shareddataattribute)  
-   2.5 [SlotDataAttribute](#25-slotdataattribute)  
-   2.6 [SlotMetaDataAttribute](#26-slotmetadataattribute)  
-   2.7 [TempDataAttribute](#27-tempdataattribute)
-
-3. [列挙型](#3-列挙型)  
-   3.1 [ExceptionPolicy](#31-exceptionpolicy)  
-   3.2 [SerializerType](#32-serializertype)  
-   3.3 [TempDataResetTiming](#33-tempdataresettiming)
-
-4. [クラス](#4-クラス)  
-   4.1 [SaveDesignRoot 属性を付与されたクラス](#41-savedesignroot-属性を付与されたクラス)
-
-5. [サードパーティ ライセンス](#5-サードパーティ-ライセンス)
-
----
-
-<div class="page-break"></div>
-
-## 1. インターフェース
-
-### 1.1 IAfterInitializeCallback
-
-#### 説明
-
-データの初期化時に**一度だけ**何らかの処理を実行したい場合はこのインターフェースを使用します。
-
-##### 呼び出されるケース
-
-* データを初期化したとき
-* データを読み込んだとき、ゲームバージョンの違いでセーブファイルに対象のデータが存在しなかったとき
-
-##### 呼び出されないケース
-
-* データを読み込んだとき、既存セーブデータにそのデータが含まれており、正常に復元された場合
-
-このインターフェースは `SharedData` 属性、 `SlotData` 属性のいずれかを付与したクラスに実装する必要があり、
-`SlotMetaData` 属性、 `TempData` 属性のみを付与したクラスやどのデータ属性も付与していないクラスに実装した場合は無視されます。
+- 属性（Attributes）
+    - [EncryptorAttribute](#encryptorattribute)
+    - [KeepAttribute](#keepattribute)
+    - [SaveDesignRootAttribute](#savedesignrootattribute)
+    - [SharedDataAttribute](#shareddataattribute)
+    - [SlotDataAttribute](#slotdataattribute)
+    - [SlotMetaDataAttribute](#slotmetadataattribute)
+    - [TempDataAttribute](#tempdataattribute)
+- 列挙型（Enums）
+    - [ExceptionPolicy](#exceptionpolicy)
+    - [SerializerType](#serializertype)
+    - [TempDataResetTiming](#tempdataresettiming)
+- インターフェース（Interfaces）
+    - [IAfterInitializeCallback](#iafterinitializecallback)
+    - [IAfterInitializeOrLoadCallback](#iafterinitializeorloadcallback)
+    - [IAfterInitializeOrLoadRollback\<T>](#iafterinitializeorloadrollbackt)
+    - [IAfterInitializeRollback\<T>](#iafterinitializerollbackt)
+    - [IAfterLoadCallback](#iafterloadcallback)
+    - [IAfterLoadRollback\<T>](#iafterloadrollbackt)
+    - [IAfterLoadSlotCallback](#iafterloadslotcallback)
+    - [IAfterLoadSlotRollback\<T>](#iafterloadslotrollbackt)
+    - [IBeforeDeleteCallback](#ibeforedeletecallback)
+    - [IBeforeDeleteRollback](#ibeforedeleterollback)
+    - [IBeforeDeleteSlotCallback](#ibeforedeleteslotcallback)
+    - [IBeforeDeleteSlotRollback](#ibeforedeleteslotrollback)
+    - [IBeforeSaveCallback](#ibeforesavecallback)
+    - [IBeforeSaveRollback](#ibeforesaverollback)
+    - [IBeforeSaveSlotCallback](#ibeforesaveslotcallback)
+    - [IBeforeSaveSlotRollback](#ibeforesaveslotrollback)
+    - [IDataCipher](#idatacipher)
+    - [ISaveDesignConfig](#isavedesignconfig)
+- 構造体（Structs）
+    - [SlotKey](#slotkey)
 
 ---
 
-#### Public 関数
+## EncryptorAttribute
 
-| 関数名                                     | 説明               |
-|-----------------------------------------|------------------|
-| [OnAfterInitialize](#onafterinitialize) | データ初期化時に呼び出されます。 |
+### 概要
 
----
+保存データの暗号化/復号を提供する型であることを示します。対象の型は `IDataCipher` を実装している必要があります。
 
-#### OnAfterInitialize
+### 適用対象
 
-* public void **OnAfterInitialize** ();
+- `AttributeTargets.Class`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
 
-##### 説明
+### パラメータ
 
-データの初期化時に一度だけ呼び出されます。
+| 名前 | 型 | 必須 | 説明 |
+|----|---|:--:|----|
+| —  | — | —  | なし |
+
+### 使用例
 
 ```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class ExampleClass : IAfterInitializeCallback
-{
-    public int money;
-    
-    void IAfterInitializeCallback.OnAfterInitialize()
-    {
-        money = 100;
-    }
-}
-```
-
----
-
-### 1.2 IAfterInitializeRollback\<T>
-
-#### 説明
-
-初期化処理中に例外が発生し、[IAfterInitializeCallback](#11-iafterinitializecallback)
-で実装したコールバックによって発生した副作用をロールバックする場合はこのインターフェースを使用します。
-
-##### 呼び出されるケース
-
-* 初期化処理中に例外が発生したとき、
-  [IAfterInitializeCallback](#11-iafterinitializecallback).[OnAfterInitialize](#onafterinitialize)()
-  が呼ばれていた
-
-##### 呼び出されないケース
-
-* [IAfterInitializeCallback](#11-iafterinitializecallback)を実装していない
-* 初期化処理中に例外が発生したとき、
-  [IAfterInitializeCallback](#11-iafterinitializecallback).[OnAfterInitialize](#onafterinitialize)()
-  が呼ばれていなかった
-
----
-
-#### Public 関数
-
-| 関数名                                                     | 説明                        |
-|---------------------------------------------------------|---------------------------|
-| [OnAfterInitializeRollback](#onafterinitializeRollback) | データ初期化処理のロールバック時に呼び出されます。 |
-
----
-
-#### OnAfterInitializeRollback
-
-* public void **OnAfterInitializeRollback** (T previousData);
-
-##### 説明
-
-データ初期化処理のロールバック時に呼び出されます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-using UnityEngine;
-
-[SharedData, Serializable]
-public class ExampleClass : IAfterInitializeCallback, IAfterInitializeRollback<ExampleClass>
-{
-    [SerializedField] int frameRate;
-        
-    public void SetFrameRate(int frameRate)
-    {
-        this.frameRate = frameRate;
-        Application.targetFrameRate = frameRate;
-    }
-    
-    void IAfterInitializeCallback.OnAfterInitialize()
-    {
-        SetFrameRate(60);
-    }
-    
-    void IAfterInitializeRollback.OnAfterInitializeRollback(ExampleClass previousData)
-    {
-        if (previousData != null) Application.targetFrameRate = previousData.frameRate;
-        else Application.targetFrameRate = -1;
-    }
-}
-```
-
----
-
-### 1.3 IAfterLoadCallback
-
-#### 説明
-
-データが読み込まれた後に何らかの処理を実行したい場合はこのインターフェースを使用します。
-
-このインターフェースは `SharedData` 属性、 `SlotData` 属性、 `SlotMetaData` 属性のいずれかを付与したクラスに実装する必要があり、
-`TempData` 属性のみを付与したクラスやどのデータ属性も付与していないクラスに実装した場合は無視されます。
-
----
-
-#### Public 関数
-
-| 関数名                         | 説明                    |
-|-----------------------------|-----------------------|
-| [OnAfterLoad](#onafterload) | データが読み込まれた直後に呼び出されます。 |
-
----
-
-#### OnAfterLoad
-
-* public void **OnAfterLoad** ();
-
-##### 説明
-
-データが読み込まれた後に呼び出されます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class ExampleClass : IAfterLoadCallback
-{
-    public int numberOfStartups;
-    
-    void IAfterLoadCallback.OnAfterLoad()
-    {
-        numberOfStartups++;
-    }
-}
-```
-
----
-
-### 1.4 IAfterLoadRollback\<T>
-
-#### 説明
-
-読み込み処理中に例外が発生し、[IAfterLoadCallback](#13-iafterloadcallback)
-で実装したコールバックによって発生した副作用をロールバックする場合はこのインターフェースを使用します。
-
----
-
-#### Public 関数
-
-| 関数名                                         | 説明                         |
-|---------------------------------------------|----------------------------|
-| [OnAfterLoadRollback](#onafterloadrollback) | データ読み込み処理のロールバック時に呼び出されます。 |
-
----
-
-#### OnAfterLoadRollback
-
-* public void **OnAfterLoadRollback** (T previousData);
-
-##### 説明
-
-データ読み込み処理のロールバック時に呼び出されます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-using UnityEngine;
-
-[SharedData, Serializable]
-public class ExampleClass : IAfterLoadCallback, IAfterLoadRollback<ExampleClass>
-{
-    [SerializedField] int frameRate;
-
-    public void SetFrameRate(int frameRate)
-    {
-        this.frameRate = frameRate;
-        Application.targetFrameRate = frameRate;
-    }
-
-    void IAfterLoadCallback.OnAfterLoad()
-    {
-        SetFrameRate(frameRate);
-    }
-    
-    void IAfterLoadRollback.OnAfterLoadRollback(ExampleClass previousData)
-    {
-        if (previousData != null) Application.targetFrameRate = previousData.frameRate;
-        else Application.targetFrameRate = -1;
-    }
-}
-```
-
----
-
-### 1.5 IBeforeSaveCallback
-
-#### 説明
-
-データが保存される前に何らかの処理を実行したい場合はこのインターフェースを使用します。
-
-このインターフェースは `SharedData` 属性、 `SlotData` 属性、 `SlotMetaData` 属性のいずれかを付与したクラスに実装する必要があり、
-`TempData` 属性のみを付与したクラスやどのデータ属性も付与していないクラスに実装した場合は無視されます。
-
----
-
-#### Public 関数
-
-| 関数名                           | 説明                   |
-|-------------------------------|----------------------|
-| [OnBeforeSave](#onbeforesave) | データが保存される直前に呼び出されます。 |
-
----
-
-#### OnBeforeSave
-
-* public void **OnBeforeSave** ();
-
-##### 説明
-
-データが保存される前に呼び出されます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class ExampleClass : IBeforeSaveCallback
-{
-    static readonly DateTime s_epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    
-    // JsonUtilityの場合、 DateTime 型のシリアライズに非対応のため long 型で保存する。
-    public long saveDateTime;
-    
-    public DateTime SaveDateTime => s_epoch.AddMilliseconds(saveDateTime).ToLocalTime();
-
-    void IBeforeSaveCallback.OnBeforeSave()
-    {
-        // データが保存される直前に DateTime 型を long 型に変換して書き込む
-        saveDateTime = (long)(DateTime.Now.ToUniversalTime() - s_epoch).TotalMilliseconds;
-    }
-}
-```
-
----
-
-### 1.6 IBeforeSaveRollback
-
-#### 説明
-
-書き込み処理中に例外が発生し、[IBeforeSaveCallback](#15-ibeforesavecallback)
-で実装したコールバックによって発生した副作用をロールバックする場合はこのインターフェースを使用します。
-
----
-
-#### Public 関数
-
-| 関数名                                           | 説明                         |
-|-----------------------------------------------|----------------------------|
-| [OnBeforeSaveRollback](#onbeforesaverollback) | データ書き込み処理のロールバック時に呼び出されます。 |
-
----
-
-#### OnBeforeSaveRollback
-
-* public void **OnBeforeSaveRollback** ();
-
-##### 説明
-
-データ書き込み処理のロールバック時に呼び出されます。
-
----
-
-### 1.7 ISaveDesignConfig
-
-#### 説明
-
-データの保存に関する設定を提供するインターフェースです。
-
----
-
-#### Public 関数
-
-| 関数名                                                   | 説明                               |
-|-------------------------------------------------------|----------------------------------|
-| [GetSaveDataDirectoryPath](#getsavedatadirectorypath) | ファイルを保存するディレクトリパスを取得する。          |
-| [GetSharedDataFileName](#getshareddatafilename)       | 共有データを保存するファイル名を取得する。            |
-| [GetSlotDataFileName](#getslotdatafilename)           | セーブスロットごとに分けて保存するデータのファイル名を取得する。 |
-| [GetFileExtension](#getfileextension)                 | 保存するファイルの拡張子を取得する。               |
-| [GetExceptionPolicy](#getexceptionpolicy)             | 例外の扱い方を取得する。                     |
-
----
-
-#### GetSaveDataDirectoryPath
-
-* public string **GetSaveDataDirectoryPath** ();
-
-##### 説明
-
-ファイルを保存するディレクトリパスを取得する。
-
-特にこだわりが無ければ `Application.persistentDataPath + ディレクトリ名` を返すよう実装することを推奨します。
-
-Android など一部のプラットフォームは、 `Application.persistentDataPath` 配下のディレクトリパスを返さなければ読み書きができません。
-
----
-
-#### GetSharedDataFileName
-
-* public string **GetSharedDataFileName** ();
-
-##### 説明
-
-共有データを保存するファイル名を取得する。
-
----
-
-#### GetSlotDataFileName
-
-* public string **GetSlotDataFileName** ();
-
-##### 説明
-
-スロット固有のデータを保存するファイル名を取得する。
-
----
-
-#### GetFileExtension
-
-* public string **GetFileExtension** ();
-
-##### 説明
-
-保存するファイルの拡張子を取得する。
-
-`null` や空文字を返すと拡張子のないファイルが生成されます。
-
----
-
-#### GetExceptionPolicy
-
-* public [ExceptionPolicy](#31-exceptionpolicy) **GetExceptionPolicy** ();
-
-##### 説明
-
-初期化、読み込み、保存処理中に例外が発生した場合の動作の種類を取得する。
-
----
-
-<div class="page-break"></div>
-
-## 2. 属性
-
-### 2.1 EncryptorAttribute
-
-#### 説明
-
-データの読み書き時に暗号化処理・複合化処理を組み込む場合に使用する。
-
-```csharp
-using SaveDesign.Runtime;
-
 [Encryptor]
-public static class CustomEncryptor
+public sealed class AesGcmCipher : IDataCipher
 {
-    public static void Encrypt(ref byte[] data)
-    {
-        ...
-    }
-
-    public static void Decrypt(ref byte[] data)
-    {
-        ...
-    }
+    public byte[] Encrypt(byte[] plaintext) { /* ... */ return ciphertext; }
+    public byte[] Decrypt(byte[] ciphertext) { /* ... */ return plaintext; }
 }
 ```
 
----
+### 注意事項
 
-#### コンストラクタ
-
-* public **EncryptorAttribute** ();
-
----
-
-### 2.2 KeepAttribute
-
-#### 説明
-
-データの初期化と読み込みでデータクラスのインスタンスが切り替わっても、付与したイベントとフィールドの値が破棄されないよう維持する。
-
-主な用途としては、値が変更されたときに呼ぶイベントの購読が破棄されないようにする。
+- 後方互換性（過去バージョンとの整合性）を維持するため、この属性を付与した静的クラスが存在する場合、フレームワークは次の静的メソッドを呼び出します。
 
 ```csharp
-[SlotData, Serializable]
-public partial class Example : IAfterLoadCallback
-{
-    [Keep] public event System.Action<int> OnValueChanged;
-    
-    [SerializeField] int value;
-    
-    public int Value
-    {
-        get => value;
-        set
-        {
-            this.value = value;
-            OnValueChanged?.Invoke(value);
-        }
-    }
-    
-    void IAfterLoadCallback.OnAfterLoad()
-    {
-        OnValueChanged?.Invoke(value);
-    }
-}
+public static void Encrypt(ref byte[] data) { /* ... */ data = ciphertext; }
+public static void Decrypt(ref byte[] data) { /* ... */ data = plaintext; }
 ```
 
----
+データは `ref` 引数として渡されるため、実装側で配列の差し替えまたは内容の書き換えにより、暗号化／復号後のバイト列を反映してください。
 
-#### コンストラクタ
+### 関連項目
 
-* public **KeepAttribute** ();
-
----
-
-### 2.3 SaveDesignRootAttribute
-
-#### 説明
-
-セーブデータを管理する中核クラスに付与します。
-
-この属性が付与されたクラスには、初期化、保存、読み込み、削除などを行うためのエントリポイントが自動生成されます。
-
-詳細は [SaveDesignRoot 属性を付与されたクラス](#41-savedesignroot-属性を付与されたクラス) をご確認ください。
+- [IDataCipher](#idatacipher)
 
 ---
 
-#### コンストラクタ
+## KeepAttribute
 
-* public **SaveDesignRootAttribute** ([SerializerType](#32-serializertype) **serializerType**);
+### 概要
 
-| パラメーター名                           | 説明                                                     |
-|-----------------------------------|--------------------------------------------------------|
-| [serializerType](#serializertype) | 使用するシリアライザーの種類。 (デフォルト値: `SerializerType.JsonUtility`) |
+初期化やロードによりデータインスタンスが差し替わっても、対象のフィールド/イベントの値を保持します。
+
+### 適用対象
+
+- `AttributeTargets.Event | AttributeTargets.Field`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
+
+### パラメータ
+
+| 名前 | 型 | 必須 | 説明 |
+|----|---|:--:|----|
+| —  | — | —  | なし |
+
+### 使用例
 
 ```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SaveDesignRoot]
-internal partial class ExampleClass { }
-
-// 下記のようにアクセスできる
-ExampleClass.Shared
-ExampleClass.Slot
-ExampleClass.Load
+[SharedData]
+public sealed partial class RuntimeCache
+{
+    [Keep]
+    public int LastOpenedTab;
+}
 ```
 
----
+### 注意事項
 
-##### serializerType
-
-###### 説明
-
-使用するシリアライザーを設定できます。
-
-詳細は [SerializerType](#32-serializertype) セクションをご確認ください。
+- この属性は「保存対象になるかどうか」を決定しません。実際に保存されるかは、使用しているシリアライザの仕様・設定に従って制御してください（例：無視属性の有無、公開範囲、カスタムコンバータなど）。
+- この属性はスロットメタデータ型には使用できません。
+- 意図は「初期化/ロードでインスタンスが差し替わった場合に、対象フィールド/イベントの値を保持すること」です。永続化の置き換えや強制保存の指定ではありません。
 
 ---
 
-### 2.4 SharedDataAttribute
+## SaveDesignRootAttribute
 
-#### 説明
+### 概要
 
-すべてのセーブスロットで共有されるデータを定義する属性です。
+Save Design
+の“ルート”となる静的クラスをマークします。フレームワークはこれを起点に初期化・ロード・セーブ・削除などのコア機能を自動的に生成し、グローバルなアクセスポイントを提供します。シリアライザの種類をコンストラクタ引数で切り替え可能です。
 
-プレイヤー全体の進行状況やグローバル設定などに適しています。
+### 適用対象
 
----
+- `AttributeTargets.Class`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
 
-#### コンストラクタ
+### パラメータ
 
-* public **SharedDataAttribute** ();
-* public **SharedDataAttribute** (string **path**);
-* public **SharedDataAttribute** (params Type[] **dependsOnTypes**);
-* public **SharedDataAttribute** (string **path**, params Type[] **dependsOnTypes**);
+| 名前               | 型                | 必須 | 説明                                                            |
+|------------------|------------------|:--:|---------------------------------------------------------------|
+| `serializerType` | `SerializerType` | —  | 保存/読込に用いるシリアライザの種類。未指定時の既定値は `SerializerType.JsonUtility` です。 |
 
-| パラメーター名                           | 説明                 |
-|-----------------------------------|--------------------|
-| [path](#path)                     | データにアクセスするための階層パス。 |
-| [dependsOnTypes](#dependsontypes) | 読み書き時に依存するデータのリスト。 |
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class ExampleClass
-{
-    public string value;
-}
-
-// 下記のようにアクセスできる
-SD.Shared.ExampleClass.value = "shared data example.";
-
-var value = SD.Shared.ExampleClass.value;
-```
-
----
-
-##### path
-
-###### 説明
-
-データにアクセスするための階層パスです。
-
-階層を分けてデータの整理ができます。
-
-スラッシュ区切りのパスを設定すると複数階層に分けられます。
-
-また、階層パスは `static partial` クラスで生成されるため自由に拡張できます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData("Path1/Path2"), Serializable]
-public class ExampleClass { }
-
-// 下記のようにアクセスできる
-SD.Shared.Path1.Path2.ExampleClass
-```
-
----
-
-##### dependsOnTypes
-
-###### 説明
-
-データの読み書き時に依存する他のデータを設定できます。
-
-これを設定することで、依存するすべてのデータの読み書きを終えてからこのデータの読み書きが実行されます。
-
-ただし、依存するすべてのデータが同じ種類のデータでなければいけません。
-
-また、循環するような依存関係は設定はできません。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class A
-{
-    public bool flag;
-}
-
-[SharedData(typeof(A)), Serializable]
-public class B : IAfterLoadCallback
-{
-    public int value;
-
-    void IAfterLoadCallback.OnAfterLoad()
-    {
-        // 読み込み後の処理でデータAに依存している
-        if (SD.Shared.A.flag) value += 50;
-    }
-}
-
-[SlotData, Serializable]
-public class SlotData { }
-
-// 依存先のデータと種類が異なるためエラーになる。
-[SharedData(typeof(SlotData)), Serializable]
-public class C { }
-```
-
----
-
-### 2.5 SlotDataAttribute
-
-#### 説明
-
-セーブスロットごとに分けて保存されるデータを定義する属性です。
-
-キャラクターの状態、所持アイテム、進行チャプターなど個別のゲーム進行に関わるデータに適しています。
-
----
-
-#### コンストラクタ
-
-* public **SlotDataAttribute** ();
-* public **SlotDataAttribute** (string **path**);
-* public **SlotDataAttribute** (params Type[] **dependsOnTypes**);
-* public **SlotDataAttribute** (string **path**, params Type[] **dependsOnTypes**);
-
-| パラメーター名                             | 説明                 |
-|-------------------------------------|--------------------|
-| [path](#path-1)                     | データにアクセスするための階層パス。 |
-| [dependsOnTypes](#dependsontypes-1) | 読み書き時に依存するデータのリスト。 |
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SlotData, Serializable]
-public class ExampleClass
-{
-    public string value;
-}
-
-// 下記のようにアクセスできる
-SD.Slot.ExampleClass.value = "slot data example.";
-
-var value = SD.Slot.ExampleClass.value;
-```
-
----
-
-##### path
-
-###### 説明
-
-データにアクセスするための階層パスです。
-
-階層を分けてデータの整理ができます。
-
-スラッシュ区切りのパスを設定すると複数階層に分けられます。
-
-また、階層パスは `static partial` クラスで生成されるため自由に拡張できます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SlotData("Path1/Path2"), Serializable]
-public class ExampleClass { }
-
-// 下記のようにアクセスできる
-SD.Slot.Path1.Path2.ExampleClass
-```
-
----
-
-##### dependsOnTypes
-
-###### 説明
-
-データの読み書き時に依存する他のデータを設定できます。
-
-これを設定することで、依存するすべてのデータの読み書きを終えてからこのデータの読み書きが実行されます。
-
-ただし、依存するすべてのデータが同じ種類のデータでなければいけません。
-
-また、循環するような依存関係は設定はできません。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SlotData, Serializable]
-public class A
-{
-    public bool flag;
-}
-
-[SlotData(typeof(A)), Serializable]
-public class B : IAfterLoadCallback
-{
-    public int value;
-
-    void IAfterLoadCallback.OnAfterLoad()
-    {
-        // 読み込み後の処理でデータAに依存している
-        if (SD.Slot.A.flag) value += 50;
-    }
-}
-
-[SharedData, Serializable]
-public class SharedData { }
-
-// 依存先のデータと種類が異なるためエラーになる。
-[SlotData(typeof(SharedData)), Serializable]
-public class C { }
-```
-
----
-
-### 2.6 SlotMetaDataAttribute
-
-#### 説明
-
-各セーブスロットに付随するメタ情報を定義する属性です。
-
-実際のセーブデータとは分離され、セーブスロットの一覧表示などに活用できます。
-
-ただし、メタ情報は他の種類のデータとは異なり、保存するたびに新しいデータとして作成されます。  
-そのため、読み込んだメタ情報の値を直接書き換えても保存されません。  
-これは、メタ情報が他の種類のデータから自動的に生成されることを保証する仕組みです。
-
----
-
-#### コンストラクタ
-
-* public **SlotDataAttribute** ();
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SlotMetaData, Serializable]
-public class ExampleClass : IBeforeSaveCallback
-{
-    public string playerName;
-    public int level;
-    public int money;
-    
-    void IBeforeSaveCallback.OnBeforeSave()
-    {
-        var player = SD.Slot.Player;
-        playerName = player.name;
-        level = player.level;
-        money = player.money;
-    }
-}
-
-// 下記のように読み込むことができる
-if (SD.Load.SlotMeta(slotIndex, out var meta))
-{
-    var info = meta.playerName + ", " + meta.level + ", " + meta.money;
-
-    meta.playerName = "dummy name"; // ❌メタ情報の値を書き換えても保存されない
-}
-
-// 保存は SlotData を保存するときに一緒に保存される
-```
-
----
-
-### 2.7 TempDataAttribute
-
-#### 説明
-
-保存されない一時的なデータです。
-ゲームセッション中にのみ有効なフラグや一時的な状態の保存に使用します。
-どのタイミングでリセットされるかは、[TempDataResetTiming](#33-tempdataresettiming) により制御できます。
-
----
-
-#### コンストラクタ
-
-* public **TempDataAttribute** ();
-* public **TempDataAttribute** (string **path**);
-* public **TempDataAttribute** ([TempDataResetTiming](#33-tempdataresettiming) **resetTiming**);
-* public **TempDataAttribute** (params Type[] **dependsOnTypes**);
-* public **TempDataAttribute** (string **path**, [TempDataResetTiming](#33-tempdataresettiming) **resetTiming**);
-* public **TempDataAttribute** (string **path**, params Type[] **dependsOnTypes**);
-* public **TempDataAttribute** ([TempDataResetTiming](#33-tempdataresettiming) **resetTiming**, params Type[] *
-  *dependsOnTypes**);
-* public **TempDataAttribute** (string **path**, [TempDataResetTiming](#33-tempdataresettiming) **resetTiming**, params
-  Type[] **dependsOnTypes**);
-
-| パラメーター名                             | 説明                                                                  |
-|-------------------------------------|---------------------------------------------------------------------|
-| [path](#path-2)                     | データにアクセスするための階層パス。                                                  |
-| [resetTiming](#resettiming)         | 一時データをリセットするタイミング。 (デフォルト値: `TempDataResetTiming.OnSharedDataLoad`) |
-| [dependsOnTypes](#dependsontypes-2) | 読み書き時に依存するデータのリスト。                                                  |
+### 使用例
 
 ```csharp
 using SaveDesign.Runtime;
 
-[TempData]
-public class ExampleClass
-{
-    public string value;
-}
-
-// 下記のようにアクセスできる
-SD.Temp.ExampleClass.value = "temp data example.";
-
-var value = SD.Temp.ExampleClass.value;
+[SaveDesignRoot(SerializerType.MemoryPack)]
+public static class GameSave { }
 ```
+
+### 注意事項
+
+- 対象は必ず `static` クラスにしてください。
+- シリアライザの選択は互換性に影響します。開発初期に決定し、変更時は移行手順を検討してください。
+
+### 関連項目
+
+- [SerializerType](#serializertype)
+- [ISaveDesignConfig](#isavedesignconfig)
 
 ---
 
-##### path
+## SharedDataAttribute
 
-###### 説明
+### 概要
 
-データにアクセスするための階層パスです。
+全スロットで共有されるデータ型を示します。依存関係を指定すると、指定型の後にシリアライズ/デシリアライズされます。
 
-階層を分けてデータの整理ができます。
+### 適用対象
 
-スラッシュ区切りのパスを設定すると複数階層に分けられます。
+- `AttributeTargets.Class`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
 
-また、階層パスは `static partial` クラスで生成されるため自由に拡張できます。
+### パラメータ
+
+| 名前               | 型        | 必須 | 説明                     |
+|------------------|----------|:--:|------------------------|
+| `path`           | `string` | —  | 任意の階層パス。アクセスや構造の整理に使用。 |
+| `dependsOnTypes` | `Type[]` | —  | 依存する型の配列。これらの後に処理されます。 |
+
+### 使用例
 
 ```csharp
-using SaveDesign.Runtime;
-
-[TempData("Path1/Path2")]
-public class ExampleClass { }
-
-// 下記のようにアクセスできる
-SD.Temp.Path1.Path2.ExampleClass
+[SharedData("Game")]
+public sealed class SharedGameData { /* ... */ }
 ```
+
+### 注意事項
+
+- 共有データは全スロットに共通であるため、スロット固有の状態は保持しないでください。
+- `path` はスラッシュ（`/`）区切りで複数階層を指定できます（例: `Game/Player/Inventory`）。
+
+### 関連項目
+
+- [SlotDataAttribute](#slotdataattribute)
+- [ISaveDesignConfig](#isavedesignconfig)
 
 ---
 
-##### resetTiming
+## SlotDataAttribute
 
-###### 説明
+### 概要
 
-一時データをリセットするタイミングを設定できます。
+スロット固有データ型を示します。任意のパスや依存関係を指定可能です。
 
-セーブスロットごとに分けて使用したい一時データがある場合などにこの値を設定することで、適切なタイミングで自動的にリセットされます。  
-この仕組みによって、**初期化忘れによるバグを未然に防ぎます**。
+### 適用対象
+
+- `AttributeTargets.Class`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
+
+### パラメータ
+
+| 名前               | 型        | 必須 | 説明        |
+|------------------|----------|:--:|-----------|
+| `path`           | `string` | —  | 任意の階層パス。  |
+| `dependsOnTypes` | `Type[]` | —  | 依存する型の配列。 |
+
+### 使用例
 
 ```csharp
-using SaveDesign.Runtime;
+[SlotData("Player")]
+public sealed class PlayerSlotData { /* ... */ }
+```
 
+### 注意事項
+
+- スロット固有データはスロット切替えで内容が変わることを前提に設計します。
+- `path` はスラッシュ（`/`）区切りで複数階層を指定できます（例: `Game/Player/Inventory`）。
+
+### 関連項目
+
+- [SharedDataAttribute](#shareddataattribute)
+- [SlotMetaDataAttribute](#slotmetadataattribute)
+
+---
+
+## SlotMetaDataAttribute
+
+### 概要
+
+スロットに紐づくメタデータ型を示します（例：サムネイル、プレイ時間、作成日時など）。
+
+### 適用対象
+
+- `AttributeTargets.Class`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
+
+### パラメータ
+
+| 名前 | 型 | 必須 | 説明 |
+|----|---|:--:|----|
+| —  | — | —  | なし |
+
+### 使用例
+
+```csharp
+[SlotMetaData]
+public sealed class SlotInfo { /* ... */ }
+```
+
+### 注意事項
+
+- メタデータは表示や選択用途が多く、サイズを小さく保つと良いです。
+
+### 関連項目
+
+- [SlotDataAttribute](#slotdataattribute)
+
+---
+
+## TempDataAttribute
+
+### 概要
+
+永続化しない一時データ型を示します。リセットタイミング（`TempDataResetTiming`）や依存関係を指定できます。
+
+### 適用対象
+
+- `AttributeTargets.Class`
+- `Inherited`: `false`
+- `AllowMultiple`: `false`
+
+### パラメータ
+
+| 名前               | 型                     | 必須 | 説明         |
+|------------------|-----------------------|:--:|------------|
+| `path`           | `string`              | —  | 任意の階層パス。   |
+| `resetTiming`    | `TempDataResetTiming` | —  | リセットタイミング。 |
+| `dependsOnTypes` | `Type[]`              | —  | 依存する型の配列。  |
+
+### 使用例
+
+```csharp
 [TempData(TempDataResetTiming.OnSlotDataLoad)]
-public class ExampleClass
-{
-    public string value = "reset";
-}
-
-// OnSlotDataLoad の場合、セーブスロットを読み込むとリセットされる
-SD.Temp.ExampleClass.value = "example";
-
-var value = SD.Temp.ExampleClass.value; // example
-
-if (SD.Load.Slot("identifier"))
-{
-    value = SD.Temp.ExampleClass.value; // reset
-}
+public sealed class RuntimeCache { /* ... */ }
 ```
+
+### 注意事項
+
+- 永続化しない前提で設計し、再生成/リセットに耐えられる構造にしてください。
+- 一時データが他の一時データに依存する場合は、**リセットタイミングを同一にする必要があります**。  
+  異なるリセットタイミングを設定すると、依存関係の整合性が崩れ、想定外のデータ状態になる可能性があります。
+- `path` はスラッシュ（`/`）区切りで複数階層を指定できます（例: `Game/Player/Inventory`）。
+
+### 関連項目
+
+- [TempDataResetTiming](#tempdataresettiming)
+- [KeepAttribute](#keepattribute)
 
 ---
 
-##### dependsOnTypes
+## ExceptionPolicy
 
-###### 説明
+### 概要
 
-データの初期化処理で依存する他のデータを設定できます。
+保存/読込処理中に発生した例外の扱い方を制御します。
 
-これを設定することで、依存するすべてのデータの初期化処理を終えてからこのデータの初期化処理が実行されます。
+### 列挙値
 
-ただし、依存するすべてのデータが同じ種類のデータでなければならず、  
-**一時データの場合はリセットタイミングも依存先のデータと同じでなければいけません。**
+| 名前               | 値 | 説明                     |
+|------------------|--:|------------------------|
+| `Throw`          | — | ロールバック後に例外を再スロー（抑制なし）。 |
+| `LogAndSuppress` | — | ロールバック後にログ出力し、例外を抑制。   |
+| `Suppress`       | — | ロールバック後に静かに抑制（ログなし）。   |
 
-また、循環するような依存関係は設定はできません。
+### 注意事項
+
+- 運用環境では `Throw` 以外を選ぶことでユーザー体験を守れる場合があります。
+
+---
+
+## SerializerType
+
+### 概要
+
+保存/読込に用いるシリアライザの種類を指定します。
+
+### 列挙値
+
+| 名前               | 値 | 説明                          |
+|------------------|--:|-----------------------------|
+| `JsonUtility`    | — | Unity 標準の JSON。人間可読でデバッグ向き。 |
+| `MessagePack`    | — | 高速・小サイズのバイナリ。               |
+| `NewtonsoftJson` | — | 高機能な JSON。カスタマイズ性重視。        |
+| `MemoryPack`     | — | 非常に高速なバイナリ。                 |
+
+### 注意事項
+
+- 途中変更は互換性に影響します。必要なら移行ツールを用意してください。
+
+---
+
+## TempDataResetTiming
+
+### 概要
+
+`TempData` のリセットタイミングを指定します。
+
+### 列挙値
+
+| 名前                 | 値 | 説明               |
+|--------------------|--:|------------------|
+| `OnSharedDataLoad` | — | 共有データ読込時にリセット。   |
+| `OnSlotDataLoad`   | — | スロットデータ読込時にリセット。 |
+| `OnGameStart`      | — | ゲーム起動時にリセット。     |
+| `Manual`           | — | 手動でリセット。         |
+
+### 注意事項
+
+- `Manual` を設定したデータをリセットするには、 `SD.Temp.Example = new Example();` のように直接代入してください。
+
+---
+
+## IAfterInitializeCallback
+
+### 概要
+
+インスタンス生成直後（ロード/セーブ前）に実行したい処理を提供します。
+
+### メンバー
+
+#### メソッド
+
+| シグネチャ                      | 説明                   | 例外 |
+|----------------------------|----------------------|----|
+| `void OnAfterInitialize()` | 生成直後に一度だけ呼ばれるコールバック。 | —  |
+
+### 呼び出しタイミング
+
+- 初期化時
+- バージョン変更によりデータ読み込み時に既存データに含まれていない場合
+
+---
+
+## IAfterInitializeOrLoadCallback
+
+### 概要
+
+初期化直後またはロード直後に共通して実行したい処理を提供します。
+
+### メンバー（メソッド）
+
+| シグネチャ                            | 説明                  | 例外 |
+|----------------------------------|---------------------|----|
+| `void OnAfterInitializeOrLoad()` | 初期化直後またはロード直後に呼ばれる。 | —  |
+
+### 呼び出しタイミング
+
+- 初期化時
+- 読み込み時
+
+---
+
+## IAfterInitializeOrLoadRollback\<T>
+
+### 概要
+
+`IAfterInitializeOrLoadCallback` の外部副作用を取り消すためのロールバック契約（CRTP）。
+
+### メンバー（メソッド）
+
+| シグネチャ                                                  | 説明             | 例外 |
+|--------------------------------------------------------|----------------|----|
+| `void OnAfterInitializeOrLoadRollback(T previousData)` | 既知の正常データへ巻き戻す。 | —  |
+
+### 注意事項
+
+ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IAfterInitializeRollback\<T>
+
+### 概要
+
+`IAfterInitializeCallback` 実装で外部副作用を発生させた場合に、それを取り消すためのロールバック契約（CRTP: 自身の型を `T`
+に指定）。
+
+### メンバー
+
+#### メソッド
+
+| シグネチャ                                            | 説明             | 例外 |
+|--------------------------------------------------|----------------|----|
+| `void OnAfterInitializeRollback(T previousData)` | 既知の正常データへ巻き戻す。 | —  |
+
+### 呼び出しタイミング
+
+- 失敗時の巻き戻しフェーズで同期的に呼び出されます。
+
+### 注意事項
+
+ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IAfterLoadCallback
+
+### 概要
+
+データのロード直後に実行したい処理を提供します。
+
+### メンバー（メソッド）
+
+| シグネチャ                | 説明          | 例外 |
+|----------------------|-------------|----|
+| `void OnAfterLoad()` | ロード直後に呼ばれる。 | —  |
+
+---
+
+## IAfterLoadRollback\<T>
+
+### 概要
+
+`IAfterLoadCallback` 実装の外部副作用を取り消すロールバック契約（CRTP）。
+
+### メンバー（メソッド）
+
+| シグネチャ                                      | 説明             | 例外 |
+|--------------------------------------------|----------------|----|
+| `void OnAfterLoadRollback(T previousData)` | 既知の正常データへ巻き戻す。 | —  |
+
+### 注意事項
+
+ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IAfterLoadSlotCallback
+
+### 概要
+
+スロットを識別する `SlotKey` を受け取り、ロード直後にスロット単位の後処理を行います。
+
+### メンバー（メソッド）
+
+| シグネチャ                            | 説明                 | 例外 |
+|----------------------------------|--------------------|----|
+| `void OnAfterLoad(SlotKey slot)` | 指定スロットのロード直後に呼ばれる。 | —  |
+
+### 注意事項
+
+- **共有データ**および、**共有データの読み込み時にリセットするよう設定された一時データ**
+  では、このコールバックを使用することはできません。  
+  これらのデータはスロット単位での読み込み処理に含まれないため、`IAfterLoadSlotCallback` の呼び出し対象外となります。
+- ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+  対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IAfterLoadSlotRollback\<T>
+
+### 概要
+
+`IAfterLoadSlotCallback` の外部副作用を取り消すロールバック契約（CRTP）。
+
+### メンバー（メソッド）
+
+| シグネチャ                                                    | 説明              | 例外 |
+|----------------------------------------------------------|-----------------|----|
+| `void OnAfterLoadRollback(SlotKey slot, T previousData)` | 指定スロットについて巻き戻す。 | —  |
+
+### 注意事項
+
+**共有データ**および、**共有データの読み込み時にリセットするよう設定された一時データ**
+では、このコールバックを使用することはできません。  
+これらのデータはスロット単位での読み込み処理に含まれないため、`IAfterLoadSlotCallback` の呼び出し対象外となります。
+
+---
+
+## IBeforeDeleteCallback
+
+### 概要
+
+データ削除直前に外部リソースの解放や状態調整を行います。
+
+### メンバー（メソッド）
+
+| シグネチャ                   | 説明         | 例外 |
+|-------------------------|------------|----|
+| `void OnBeforeDelete()` | 削除直前に呼ばれる。 | —  |
+
+---
+
+## IBeforeDeleteRollback
+
+### 概要
+
+`IBeforeDeleteCallback` の外部副作用を取り消します。
+
+### メンバー（メソッド）
+
+| シグネチャ                           | 説明                | 例外 |
+|---------------------------------|-------------------|----|
+| `void OnBeforeDeleteRollback()` | 削除直前フックの副作用を巻き戻す。 | —  |
+
+### 注意事項
+
+ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IBeforeDeleteSlotCallback
+
+### 概要
+
+スロットを識別する `SlotKey` を受け取り、スロット単位で削除直前の前処理を行います。
+
+### メンバー（メソッド）
+
+| シグネチャ                               | 説明                | 例外 |
+|-------------------------------------|-------------------|----|
+| `void OnBeforeDelete(SlotKey slot)` | 指定スロットの削除直前に呼ばれる。 | —  |
+
+### 注意事項
+
+**共有データ**および、**共有データの読み込み時にリセットするよう設定された一時データ**
+では、このコールバックを使用することはできません。  
+これらのデータはスロット単位での読み込み処理に含まれないため、`IAfterLoadSlotCallback` の呼び出し対象外となります。
+
+---
+
+## IBeforeDeleteSlotRollback
+
+### 概要
+
+`IBeforeDeleteSlotCallback` の外部副作用を取り消します。
+
+### メンバー（メソッド）
+
+| シグネチャ                                       | 説明              | 例外 |
+|---------------------------------------------|-----------------|----|
+| `void OnBeforeDeleteRollback(SlotKey slot)` | 指定スロットについて巻き戻す。 | —  |
+
+### 注意事項
+
+- **共有データ**および、**共有データの読み込み時にリセットするよう設定された一時データ**
+  では、このコールバックを使用することはできません。  
+  これらのデータはスロット単位での読み込み処理に含まれないため、`IAfterLoadSlotCallback` の呼び出し対象外となります。
+- ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+  対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IBeforeSaveCallback
+
+### 概要
+
+シリアライズ直前にデータを整える最終フックを提供します。
+
+### メンバー（メソッド）
+
+| シグネチャ                 | 説明         | 例外 |
+|-----------------------|------------|----|
+| `void OnBeforeSave()` | 保存直前に呼ばれる。 | —  |
+
+---
+
+## IBeforeSaveRollback
+
+### 概要
+
+`IBeforeSaveCallback` による外部副作用を取り消します。
+
+### メンバー（メソッド）
+
+| シグネチャ                         | 説明                | 例外 |
+|-------------------------------|-------------------|----|
+| `void OnBeforeSaveRollback()` | 保存直前フックの副作用を巻き戻す。 | —  |
+
+### 注意事項
+
+ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IBeforeSaveSlotCallback
+
+### 概要
+
+スロットを識別する `SlotKey` を受け取り、スロット単位で保存直前の前処理を行います。
+
+### メンバー（メソッド）
+
+| シグネチャ                             | 説明                | 例外 |
+|-----------------------------------|-------------------|----|
+| `void OnBeforeSave(SlotKey slot)` | 指定スロットの保存直前に呼ばれる。 | —  |
+
+### 注意事項
+
+**共有データ**および、**共有データの読み込み時にリセットするよう設定された一時データ**
+では、このコールバックを使用することはできません。  
+これらのデータはスロット単位での読み込み処理に含まれないため、`IAfterLoadSlotCallback` の呼び出し対象外となります。
+
+---
+
+## IBeforeSaveSlotRollback
+
+### 概要
+
+`IBeforeSaveSlotCallback` の外部副作用を取り消します。
+
+### メンバー（メソッド）
+
+| シグネチャ                                     | 説明              | 例外 |
+|-------------------------------------------|-----------------|----|
+| `void OnBeforeSaveRollback(SlotKey slot)` | 指定スロットについて巻き戻す。 | —  |
+
+### 注意事項
+
+- **共有データ**および、**共有データの読み込み時にリセットするよう設定された一時データ**
+  では、このコールバックを使用することはできません。  
+  これらのデータはスロット単位での読み込み処理に含まれないため、`IAfterLoadSlotCallback` の呼び出し対象外となります。
+- ロールバックは、**対応するコールバックが実際に呼び出された場合にのみ実行**されます。  
+  対となるコールバックが呼び出されなかった場合、またはコールバック自体が実装されていない場合には、ロールバックは呼び出されません。
+
+---
+
+## IDataCipher
+
+### 概要
+
+任意のバイト列を同期的に暗号化/復号します。入出力はいずれも `byte[]` です。
+
+### メンバー
+
+#### メソッド
+
+| シグネチャ                               | 説明         | 例外 |
+|-------------------------------------|------------|----|
+| `byte[] Encrypt(byte[] plaintext)`  | 平文を暗号文へ変換。 | -  |
+| `byte[] Decrypt(byte[] ciphertext)` | 暗号文を平文へ復元。 | -  |
+
+#### プロパティ
+
+| メンバー | 型 | 説明 |
+|------|---|----|
+| —    | — | なし |
+
+### 実装例
 
 ```csharp
-using SaveDesign.Runtime;
-
-[TempData]
-public class A
+public sealed class SimpleXorCipher : IDataCipher
 {
-    public bool flag;
+    private readonly byte key = 0x5A;
+    public byte[] Encrypt(byte[] plaintext) { var b=new byte[plaintext.Length]; for(int i=0;i<b.Length;i++) b[i]=(byte)(plaintext[i]^key); return b; }
+    public byte[] Decrypt(byte[] ciphertext) => Encrypt(ciphertext);
 }
-
-[TempData(typeof(A))]
-public class B
-{
-    public int value;
-
-    public B()
-    {
-        // 初期化時の処理でデータAの値に依存している
-        if (SD.Temp.A.flag) value += 50;
-    }
-}
-
-[SlotData, System.Serializable]
-public class SlotData { }
-
-// ❌依存先のデータと種類が異なるためエラーになる
-[TempData(typeof(SlotData))]
-public class C { }
-
-// ❌依存先のデータとリセットタイミングが異なるためエラーになる
-[TempData(TempDataResetTiming.OnGameStart, typeof(A))]
-public class D { }
 ```
 
----
+### 注意事項
 
-<div class="page-break"></div>
-
-## 3. 列挙型
-
-### 3.1 ExceptionPolicy
-
-#### 説明
-
-初期化処理や読み書き処理中に発生した例外の扱い方の種類。
+`Encrypt` または `Decrypt` メソッド内で例外をスローすると、**進行中の読み込み／保存／削除処理が即座に中断**されます。  
+その後の挙動（例外の再スロー、抑制、ログ出力など）は、設定されている **`ExceptionPolicy`** に従って処理されます。
 
 ---
 
-#### 変数
+## ISaveDesignConfig
 
-| 変数名              | 説明             |
-|------------------|----------------|
-| `Throw`          | そのままスローする。     |
-| `LogAndSuppress` | ログに出力して握りつぶす。  |
-| `Suppress`       | ログに出力せずに握りつぶす。 |
+### 概要
 
----
+保存先ディレクトリ、ファイル名、拡張子、例外ポリシーなど、保存システムの基本設定を提供します。一部メソッドには既定実装があり、パス結合を行います。
 
-### 3.2 SerializerType
+### メンバー
 
-#### 説明
+#### メソッド
 
-シリアライザーの種類。
+| シグネチャ                                               | 説明                                       | 例外 |
+|-----------------------------------------------------|------------------------------------------|----|
+| `string GetSaveDataDirectoryPath()`                 | 保存ディレクトリの取得。                             | —  |
+| `string GetSharedDataFileName()`                    | 共有データのファイル名（拡張子なし）。                      | —  |
+| `string GetSlotDataFileName()`                      | スロットデータのファイル名（拡張子なし、識別子は後置）。             | —  |
+| `string GetFileExtension()`                         | 保存ファイルの拡張子。空/空白なら拡張子なし扱い。                | —  |
+| `ExceptionPolicy GetExceptionPolicy()`              | 例外ポリシーの取得。                               | —  |
+| `string GetSharedDataFilePath()`                    | 既定実装: ディレクトリ/ファイル名/拡張子からフルパス生成。          | —  |
+| `string GetSlotDataFilePath(string identifier)`     | 既定実装: `identifier` を付加したフルパス生成。          | —  |
+| `string GetSlotMetaDataFilePath(string identifier)` | 既定実装: `.meta`（または `.meta.{ext}`）のフルパス生成。 | —  |
 
-これを `SaveDesignRoot` 属性に設定することで使用するシリアライザーの種類を切り替えられます。
+#### プロパティ
+
+| メンバー | 型 | 説明 |
+|------|---|----|
+| —    | — | なし |
+
+### 実装例
 
 ```csharp
-using SaveDesign.Runtime;
-
-[SaveDesignRoot(SerializerType.MessagePack)]
-internal parital class SD { }
-```
-
----
-
-#### 変数
-
-| 変数名              | 説明                                |
-|------------------|-----------------------------------|
-| `JsonUtility`    | Unity 標準の JSON ライブラリ。             |
-| `MessagePack`    | MessagePack for C# \[MIT License] |
-| `NewtonsoftJson` | Newtonsoft.Json \[MIT License]    |
-| `MemoryPack`     | MemoryPack \[MIT License]         |
-
----
-
-### 3.3 TempDataResetTiming
-
-#### 説明
-
-一時データのリセットタイミングの種類。
-
----
-
-#### 変数
-
-| 変数名                | 説明                           |
-|--------------------|------------------------------|
-| `OnGameStart`      | ゲーム起動時に一度だけリセットする。           |
-| `OnSharedDataLoad` | 共有データの初期化時または読み込み時にリセットする。   |
-| `OnSlotDataLoad`   | セーブスロットの初期化時または読み込み時にリセットする。 |
-| `Manual`           | 手動でリセットする。                   |
-
----
-
-## 4. クラス
-
-### 4.1 `SaveDesignRoot` 属性を付与されたクラス
-
-#### 説明
-
-#### Static 変数
-
-| 変数名                                   | 説明                           |
-|---------------------------------------|------------------------------|
-| [config](#config)                     | データの保存に関する設定                 |
-| [currentSlotIndex](#currentslotindex) | 現在読み込んでいるセーブスロット番号。 (読み取り専用) |
-
----
-
-##### config
-
-public static [ISaveDesignConfig](#17-isavedesignconfig) **config**;
-
-###### 説明
-
-これに設定したディレクトリパスやファイル名を使用してデータを保存する。
-
-データの読み書きをする前に必ず設定する必要があります。
-
-詳細は [ISaveDesignConfig](#17-isavedesignconfig) セクションをご確認ください。
-
----
-
-##### currentSlotIndex
-
-* public static int **currentSlotIndex**;
-
-###### 説明
-
-現在読み込んでいるセーブスロットの番号を返します。 (読み取り専用)
-
-`SlotData` 属性が付与されたクラスが1つ以上ある場合に使用できます。
-
-初期化や読み書きを行うことで適切な値に**自動的に更新されます**。
-
-| 操作                        | currentSlotIndex の変化 |
-|---------------------------|----------------------|
-| `Initialize.Slot()`       | `-1` に設定される          |
-| `Load.Slot(identifier)`   | `-1` に設定される          |
-| `Load.Slot(slotIndex)`    | `slotIndex` が設定される   |
-| `Save.Slot(slotIndex)`    | `slotIndex` が設定される   |
-| `Save.Slot(identifier)`   | **変更なし**（そのままの値を維持）  |
-| `Delete.Slot(slotIndex)`  | **変更なし**（そのままの値を維持）  |
-| `Delete.Slot(identifier)` | **変更なし**（そのままの値を維持）  |
-
-```csharp
-var slotIndex = SD.currentSlotIndex; // -1
-
-if (SD.Load.Slot(0))
+public sealed class MySaveConfig : ISaveDesignConfig
 {
-    slotIndex = SD.currentSlotIndex; // 0
-}
-
-if (SD.Save.Slot(1))
-{
-    slotIndex = SD.currentSlotIndex; // 0
-}
-
-if (SD.Load.Slot("identifier"))
-{
-    slotIndex = SD.currentSlotIndex; // -1
+    public string GetSaveDataDirectoryPath() => System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "Save");
+    public string GetSharedDataFileName() => "shared";
+    public string GetSlotDataFileName() => "slot-";
+    public string GetFileExtension() => "dat";
+    public ExceptionPolicy GetExceptionPolicy() => ExceptionPolicy.LogAndSuppress;
 }
 ```
 
----
+### 注意事項
 
-#### エントリポイント
-
-`SaveDesignRoot` 属性を付与されたクラスは初期化や読み書きなどを実行するためのエントリポイントが自動生成されます。
-
-また、エントリポイントは `static partial` クラスで生成されるため、自由に拡張することができます。
-
-生成されるエントリポイントは以下の通りです。
-
-| 名前                        | 説明                                     |
-|---------------------------|----------------------------------------|
-| [Initialize](#initialize) | データを初期化する。                             |
-| [Load](#load)             | データを読み込む。                              |
-| [Save](#save)             | データを保存する。                              |
-| [Delete](#delete)         | データを削除する。                              |
-| [Shared](#shared)         | 共有データにアクセスするためのエントリポイント。               |
-| [Slot](#slot)             | セーブスロットごと分けて保存するデータにアクセスするためのエントリポイント。 |
-| [Temp](#temp)             | 保存されない一時データにアクセスするためのエントリポイント。         |
+- セーブデータの保存には内部的に **`System.IO.File`** が使用されます。  
+  そのため、**Android** など一部のプラットフォームでは、`UnityEngine.Application.persistentDataPath` 配下でなければ正常に保存できません。
+- **WebGL** 環境では、`ISaveDesignConfig` から取得した保存先パスやファイル名は **エディタ実行時のみ有効** です。  
+  実際のランタイムでは、内部で自動生成されたキーを使用して **`PlayerPrefs`** にデータが保存されます。
 
 ---
 
-#### Initialize
+## SlotKey
 
-##### 説明
+### 概要
 
-データの初期化関数へのエントリポイントです。
+保存対象を表す読み取り専用ハンドル。文字列識別子と（可能なら）数値スロットを持ち、数値スロットとして保存されたかを判別できます。  
+値型で軽量に扱えます。
 
----
+### フィールド／プロパティ
 
-##### Static 関数
+| メンバー         | 型        | 説明                |
+|--------------|----------|-------------------|
+| `Identifier` | `string` | 正規化済みの文字列識別子。     |
+| `SlotNumber` | `int`    | 数値スロット。なければ `-1`。 |
+| `IsNumbered` | `bool`   | 数値スロットとして解釈されたか。  |
 
-* public static void **Shared** ();
-* public static void **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-共有データを初期化する。
-
-共有データの場合はゲーム起動時に一度だけ読み込みを実行して、失敗した場合に初期化する処理を実装することを推奨します。
+### コンストラクタ
 
 ```csharp
-[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-static void InitSaveDesignConfig()
-{
-    // 保存関連の設定
-    SD.config = Resources.Load<SaveDesignConfig>("SaveDesignConfig");
+public SlotKey(string identifier)
+```
 
-    // 共有データの読み込みに失敗したら初期化する
-    if (!SD.Load.Shared()) SD.Initialize.Shared();
+### メソッド
+
+- `override string ToString()` — `Identifier` を返します。
+
+### 使用例
+
+```csharp
+if (slotKey.IsNumbered)
+{
+    /* スロット番号を使った処理 */
 }
 ```
 
----
+### 注意事項
 
-* public static void **Slot** ();
-* public static void **Slot** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-セーブスロットごとに分けて保存するデータを初期化する。
-
-**新しくゲームを始めるとき**に実行します。
-
-```csharp
-public void NewGame()
-{
-    SD.Slot.Player.money = 100; // ❌ データが初期化されていないためエラー
-    
-    SD.Initialize.Slot();
-    
-    SD.Slot.Player.money = 100; // ✅ OK
-}
-```
+- `identifier` が数値文字列の場合は `SlotNumber` が設定され `IsNumbered` が `true` になります。
 
 ---
 
-#### Load
-
-##### 説明
-
-データの読み込み関数へのエントリポイントです。
-
----
-
-##### Static 関数
-
-* public static bool **Shared** ();
-* public static bool **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-共有データを読み込む。
-
-共有データの場合はゲーム起動時に一度だけ読み込みを実行して、失敗した場合に初期化する処理を実装することを推奨します。
-
-```csharp
-[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-static void InitSaveDesignConfig()
-{
-    // 保存関連の設定
-    SD.config = Resources.Load<SaveDesignConfig>("SaveDesignConfig");
-
-    // 共有データの読み込みに失敗したら初期化する
-    if (!SD.Load.Shared()) SD.Initialize.Shared();
-}
-```
-
----
-
-* public static bool **Slot** (int **slotIndex**);
-* public static bool **Slot** (int **slotIndex**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-* public static bool **Slot** (string **identifier**);
-* public static bool **Slot** (string **identifier**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-セーブスロットごとに分けて保存するデータを**スロット番号**、もしくは**識別子**を指定して読み込む。
-
-セーブスロットに保存したデータを引き継いでゲームを開始する場合に実行します。
-
-また、スロット番号による読み込み関数は**セーブスロットのデータを読み込むとき**に使用し、識別子による読み込み関数はオートセーブやチェックポイントなど
-**セーブスロットとは関係のないデータを読み込むとき**に使用することを推奨します。
-
-```csharp
-public void LoadGame(int slotIndex)
-{
-    if (SD.Load.Slot(slotIndex))
-    {
-        // データが読み込めたら次のシーンへ遷移する
-        SceneManager.LoadScene("Next Scene");
-    }
-}
-```
-
----
-
-* public static bool **SlotMeta** (int **slotIndex**, out ? **meta**);
-* public static bool **SlotMeta** (int **slotIndex**, out ? **meta**, [ExceptionPolicy](#31-exceptionpolicy)
-  exceptionPolicy);
-* public static bool **SlotMeta** (string **identifier**, out ? **meta**);
-* public static bool **SlotMeta** (string **identifier**, out ? **meta**, [ExceptionPolicy](#31-exceptionpolicy)
-  exceptionPolicy);
-
-###### 説明
-
-各セーブスロットに付随するメタ情報を**スロット番号**、もしくは**識別子**を指定して読み込む。
-
-セーブデータのロード画面で各セーブスロットの情報を表示するときに実行します。
-
-スロット番号と識別子の使い分け方は、セーブスロットごとに分けて保存するデータのときと同じです。
-
-```csharp
-// セーブスロットのUIリスト
-[SerializeField] SaveSlotUI[] slots;
-
-public void DisplaySaveSlots()
-{
-    for(int i = 0; i < slots.Length; i++)
-    {
-        if (SD.Load.SlotMeta(i, out var meta))
-        {
-            // メタ情報があれば保存されたデータがあるということ
-            slots[i].UpdateUI(i, meta);
-        }
-        else
-        {
-            // メタ情報がなければ、そのセーブスロットは空である
-            slots[i].UpdateUI(i, "no data");
-        }
-    }
-}
-```
-
----
-
-#### Save
-
-##### 説明
-
-データの保存関数へのエントリポイントです。
-
----
-
-##### Static 関数
-
-* public static bool **Shared** ();
-* public static bool **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-共有データを保存する。
-
-ゲーム設定を変更した後や、ゲーム終了時に呼び出すことを推奨します。
-
-```csharp
-public void SaveSetting()
-{
-    if (SD.Save.Shared())
-    {
-        ...
-    }
-}
-```
-
----
-
-* public static bool **Slot** (int **slotIndex**);
-* public static bool **Slot** (int **slotIndex**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-* public static bool **Slot** (string **identifier**);
-* public static bool **Slot** (string **identifier**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-セーブスロットごとに分けて保存するデータを**スロット番号**、もしくは**識別子**を指定して保存する。
-
-スロット番号による保存は**セーブスロットのデータを保存するとき**に使用し、識別子による保存はオートセーブやチェックポイントなど
-**セーブスロットとは関係のないデータを保存するとき**に使用することを推奨します。
-
-メタ情報も保存されます。
-
-```csharp
-public void SaveGame(int slotIndex)
-{
-    if (SD.Save.Slot(slotIndex))
-    {
-        ...
-    }
-}
-```
-
----
-
-#### Delete
-
-##### 説明
-
-データの削除関数へのエントリポイントです。
-
----
-
-##### Static 関数
-
-* public static bool **Shared** ();
-* public static bool **Shared** ([ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-共有データを削除する。
-
-```csharp
-SD.Delete.Shared();
-```
-
----
-
-* public static bool **Slot** (int **slotIndex**);
-* public static bool **Slot** (int **slotIndex**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-* public static bool **Slot** (string **identifier**);
-* public static bool **Slot** (string **identifier**, [ExceptionPolicy](#31-exceptionpolicy) exceptionPolicy);
-
-###### 説明
-
-セーブスロットごとに分けて保存するデータを**スロット番号**、もしくは**識別子**を指定して削除する。
-
-メタ情報も削除されます。
-
-```csharp
-SD.Delete.Slot(0);
-```
-
----
-
-#### Shared
-
-##### 説明
-
-共有データへのエントリポイントです。
-
-`static partial` クラスで生成されるため、自由に拡張できます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SharedData, Serializable]
-public class ExampleClass
-{
-    public int value;
-}
-
-// 下記のようにアクセスできる
-SD.Shared.ExampleClass.value = 10;
-```
-
----
-
-#### Slot
-
-##### 説明
-
-セーブスロットごとに分けて保存するデータへのエントリポイントです。
-
-`static partial` クラスで生成されるため、自由に拡張できます。
-
-```csharp
-using System;
-using SaveDesign.Runtime;
-
-[SlotData, Serializable]
-public class ExampleClass
-{
-    public int value;
-}
-
-// 下記のようにアクセスできる
-SD.Slot.ExampleClass.value = 10;
-```
-
----
-
-#### Temp
-
-##### 説明
-
-保存されない一時データへのエントリポイントです。
-
-`static partial` クラスで生成されるため、自由に拡張できます。
-
-```csharp
-using SaveDesign.Runtime;
-
-[TempData]
-public class ExampleClass
-{
-    public int value;
-}
-
-// 下記のようにアクセスできる
-SD.Temp.ExampleClass.value = 10;
-```
-
----
-
-## 5. サードパーティ ライセンス
+## サードパーティ ライセンス
 
 本パッケージは、以下のライブラリを参照するコードを生成する可能性があります：
 
